@@ -98,7 +98,7 @@ export default function About() {
               The space between “we need help” and <span className="serif-accent text-brand-200">“we found the right person.”</span>
             </h2>
             <div className="mt-6 space-y-4 text-sm leading-relaxed text-slate-400">
-              <p>
+              <p data-scroll-words>
                 Hiring digital talent is rarely a search problem. It is a context problem. Portfolios get separated from
                 scope. Proposals get buried in email. A conversation moves to another channel and the reasoning behind
                 decisions disappears.

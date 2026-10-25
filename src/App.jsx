@@ -55,7 +55,6 @@ import AdminSettings from "./pages/admin/AdminSettings";
 export default function App() {
   return (
     <>
-      <div aria-hidden="true" className="grain-overlay" />
       <CustomCursor />
       <ScrollProgress />
       <MotionSystem />

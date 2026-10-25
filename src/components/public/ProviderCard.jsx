@@ -37,7 +37,7 @@ export default function ProviderCard({ provider }) {
           className="absolute inset-0 h-full w-full"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink-900/85 via-ink-900/20 to-transparent" />
-        <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-ink-950/55 px-2.5 py-1 text-[10px] font-semibold text-white/85 backdrop-blur">
+        <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-ink-950/75 px-2.5 py-1 text-[10px] font-semibold text-white/85">
           {RoleIcon ? <RoleIcon size={11} className="text-brand-200" /> : null}
           {primaryRole?.label || PROVIDER_TYPE_LABELS[provider.type] || provider.type}
         </span>

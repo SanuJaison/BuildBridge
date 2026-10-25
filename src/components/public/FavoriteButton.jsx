@@ -47,10 +47,10 @@ export default function FavoriteButton({ providerId, initialSaved = false, class
       disabled={busy}
       aria-label={saved ? "Remove from favorites" : "Save to favorites"}
       aria-pressed={saved}
-      className={`relative z-20 inline-flex h-9 w-9 items-center justify-center rounded-full border backdrop-blur transition ${
+      className={`relative z-20 inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
         saved
-          ? "border-brand-300/40 bg-brand-500/25 text-brand-100"
-          : "border-white/15 bg-ink-950/50 text-slate-300 hover:border-white/30 hover:text-white"
+          ? "border-brand-300/40 bg-brand-500/35 text-brand-100"
+          : "border-white/15 bg-ink-950/70 text-slate-300 hover:border-white/30 hover:text-white"
       } ${className}`}
     >
       <Bookmark size={15} className={saved ? "fill-current" : ""} />

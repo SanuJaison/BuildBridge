@@ -24,10 +24,10 @@ export default function ProjectCard({ project, featured = false }) {
           className={`w-full ${featured ? "aspect-[16/10] lg:aspect-[16/9]" : "aspect-[4/3]"}`}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink-950/55 via-transparent to-transparent opacity-80" />
-        <span className="absolute left-4 top-4 chip border-white/15 bg-ink-950/55 text-[10px] text-white/80 backdrop-blur">
+        <span className="absolute left-4 top-4 chip border-white/15 bg-ink-950/75 text-[10px] text-white/80">
           {project.category?.name || "Selected work"}
         </span>
-        <span className="absolute bottom-4 right-4 flex h-9 w-9 translate-y-1 items-center justify-center rounded-full border border-white/20 bg-ink-950/50 text-white opacity-0 backdrop-blur transition group-hover:translate-y-0 group-hover:opacity-100">
+        <span className="absolute bottom-4 right-4 flex h-9 w-9 translate-y-1 items-center justify-center rounded-full border border-white/20 bg-ink-950/70 text-white opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100">
           <ArrowUpRight size={15} />
         </span>
       </div>

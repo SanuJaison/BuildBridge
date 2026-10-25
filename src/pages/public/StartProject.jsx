@@ -272,7 +272,7 @@ export default function StartProject() {
         <section className="relative overflow-hidden border-b border-white/[0.06] pb-14 pt-32 sm:pt-36">
           <div className="pointer-events-none absolute inset-0">
             <div className="hero-grid absolute inset-0 opacity-70" />
-            <div className="absolute -top-32 left-1/4 h-80 w-[560px] rounded-full bg-violet-600/12 blur-[120px]" />
+            <div className="aurora absolute -top-32 left-1/4 h-80 w-[560px] rounded-full bg-violet-600/20" />
           </div>
           <div className="container-page relative">
             <p className="eyebrow">Start a project</p>

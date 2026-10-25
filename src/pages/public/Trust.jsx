@@ -153,7 +153,7 @@ export default function Trust() {
             <h2 className="mt-3 heading-lg text-white">
               What a verified mark <span className="serif-accent text-brand-200">means.</span>
             </h2>
-            <p className="mt-5 text-sm leading-relaxed text-slate-400">
+            <p data-scroll-words className="mt-5 text-sm leading-relaxed text-slate-400">
               Verification is a moderation decision, not an automated score. An administrator can mark a provider profile
               as verified after reviewing the information available to the platform. The mark does not certify quality,
               pricing, availability, or the outcome of future work.

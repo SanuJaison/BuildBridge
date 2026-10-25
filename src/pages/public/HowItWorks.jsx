@@ -233,7 +233,7 @@ export default function HowItWorks() {
             <h2 className="mt-3 heading-lg text-white">
               Designed to make claims <span className="serif-accent text-brand-200">checkable.</span>
             </h2>
-            <p className="mt-5 text-sm leading-relaxed text-slate-400">
+            <p data-scroll-words className="mt-5 text-sm leading-relaxed text-slate-400">
               Marketplaces often blur what is verified, what is paid placement, and what is simply marketing. BuildBridge
               keeps those categories separate and visible.
             </p>

@@ -107,17 +107,14 @@ function HeroVisual({ provider, project }) {
 
   return (
     <div className="relative mx-auto w-full max-w-[460px] px-2 sm:px-0">
-      <div
-        data-float="10"
-        className="hero-orbit pointer-events-none absolute left-1/2 top-1/2 hidden h-[560px] w-[760px] max-w-none -translate-x-1/2 -translate-y-1/2 sm:block"
-      >
+      <div className="hero-orbit pointer-events-none absolute left-1/2 top-1/2 hidden h-[560px] w-[760px] max-w-none -translate-x-1/2 -translate-y-1/2 sm:block">
         <OrbitMotif className="h-full w-full opacity-80" />
       </div>
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-600/15 blur-[80px]" />
+      <div className="aurora pointer-events-none absolute left-1/2 top-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-600/25" />
 
       <div className="hero-visual relative z-10" data-tilt="4">
         <div className="rotate-[-1.5deg]">
-          <div className="hero-float card-sheen overflow-hidden rounded-[26px] border border-white/12 bg-ink-850/95 shadow-[0_40px_120px_-40px_rgba(0,0,0,0.9)] backdrop-blur">
+          <div className="card-sheen overflow-hidden rounded-[26px] border border-white/12 bg-ink-850/95 shadow-[0_40px_120px_-40px_rgba(0,0,0,0.9)]">
             <div className="relative h-44 overflow-hidden">
               <Artwork
                 src={provider.coverImage}
@@ -128,11 +125,11 @@ function HeroVisual({ provider, project }) {
                 className="absolute inset-0 h-full w-full"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-ink-850 via-ink-850/25 to-transparent" />
-              <div className="absolute left-4 top-4 flex items-center gap-1.5 rounded-full border border-white/15 bg-ink-950/55 px-2.5 py-1 text-[10px] font-medium text-white/85 backdrop-blur">
+              <div className="absolute left-4 top-4 flex items-center gap-1.5 rounded-full border border-white/15 bg-ink-950/75 px-2.5 py-1 text-[10px] font-medium text-white/85">
                 <Sparkles size={11} className="text-brand-300" />
                 Featured specialist
               </div>
-              <span className="absolute right-4 top-4 rounded-full border border-white/15 bg-ink-950/55 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-white/75 backdrop-blur">
+              <span className="absolute right-4 top-4 rounded-full border border-white/15 bg-ink-950/75 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-white/75">
                 {PROVIDER_TYPE_LABELS[provider.type]}
               </span>
             </div>
@@ -216,7 +213,7 @@ function HeroVisual({ provider, project }) {
           </div>
         ) : null}
 
-        <div className="absolute -bottom-5 right-4 hidden items-center gap-2 rounded-full border border-brand-300/20 bg-ink-850/90 px-3 py-2 text-[10px] text-slate-300 shadow-xl backdrop-blur sm:flex">
+        <div className="absolute -bottom-5 right-4 hidden items-center gap-2 rounded-full border border-brand-300/20 bg-ink-850 px-3 py-2 text-[10px] text-slate-300 shadow-xl sm:flex">
           <Star size={12} className="fill-amber-300 text-amber-300" />
           <span>
             <span className="font-semibold text-white">{dataOrDash(provider.ratingAvg)}</span> from{" "}
@@ -305,13 +302,6 @@ export default function Home() {
           duration: 1,
           ease: "power2.out",
         });
-        gsap.to(".hero-float", {
-          y: -12,
-          duration: 4.5,
-          repeat: -1,
-          yoyo: true,
-          ease: "sine.inOut",
-        });
       });
       return () => mm.revert();
     }, landingRef);
@@ -328,9 +318,9 @@ export default function Home() {
     <div ref={landingRef} className="overflow-hidden">
       <section className="relative">
         <div className="pointer-events-none absolute inset-0">
-          <div data-parallax="0.08" className="hero-grid absolute inset-0" />
-          <div data-float="18" className="aurora absolute -left-32 top-0 h-[420px] w-[420px] rounded-full bg-violet-600/25" />
-          <div data-float="12" className="aurora absolute right-0 top-20 h-[380px] w-[380px] rounded-full bg-sky-500/15" />
+          <div className="hero-grid absolute inset-0" />
+          <div className="aurora absolute -left-32 top-0 h-[420px] w-[420px] rounded-full bg-violet-600/25" />
+          <div className="aurora absolute right-0 top-20 h-[380px] w-[380px] rounded-full bg-sky-500/15" />
           <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-transparent to-ink-950" />
         </div>
 
@@ -364,7 +354,7 @@ export default function Home() {
               </p>
 
               <form onSubmit={submitSearch} className="hero-search mt-8 max-w-xl">
-                <div className="flex items-center gap-2 rounded-2xl border border-white/12 bg-ink-900/75 p-1.5 pl-3.5 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.8)] backdrop-blur transition focus-within:border-brand-400/50 focus-within:shadow-[0_0_0_4px_rgba(139,92,246,0.1)]">
+                <div className="flex items-center gap-2 rounded-2xl border border-white/12 bg-ink-900/90 p-1.5 pl-3.5 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.8)] transition focus-within:border-brand-400/50 focus-within:shadow-[0_0_0_4px_rgba(139,92,246,0.1)]">
                   <Search size={17} className="shrink-0 text-slate-500" />
                   <input
                     value={query}
@@ -421,7 +411,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative" data-parallax="-0.05">
+            <div className="relative">
               <HeroVisual provider={providers[0]} project={projects[0]} />
             </div>
           </div>
@@ -550,11 +540,8 @@ export default function Home() {
 
           <section className="relative overflow-hidden border-t border-white/[0.06] bg-ink-900/40 py-20 lg:py-28">
             <div className="pointer-events-none absolute inset-0">
-              <div className="absolute left-1/2 top-0 h-[420px] w-[900px] -translate-x-1/2 rounded-full bg-brand-500/[0.07] blur-[130px]" />
-              <span
-                data-parallax="0.18"
-                className="text-stroke absolute -right-8 top-8 select-none text-[clamp(6rem,15vw,14rem)] font-semibold leading-none tracking-tighter"
-              >
+              <div className="aurora absolute left-1/2 top-0 h-[420px] w-[900px] -translate-x-1/2 rounded-full bg-brand-500/[0.09]" />
+              <span className="text-stroke absolute -right-8 top-8 select-none text-[clamp(6rem,15vw,14rem)] font-semibold leading-none tracking-tighter">
                 TALENT
               </span>
             </div>
@@ -628,7 +615,7 @@ export default function Home() {
           </section>
 
           <section className="relative border-t border-white/[0.06] section-pad">
-            <div className="pointer-events-none absolute right-0 top-20 h-72 w-72 rounded-full bg-violet-600/[0.07] blur-[100px]" />
+            <div className="aurora pointer-events-none absolute right-0 top-20 h-72 w-72 rounded-full bg-violet-600/[0.11]" />
             <div className="container-page relative">
               <SectionHeader
                 eyebrow="Featured talent"
@@ -813,7 +800,7 @@ export default function Home() {
           <section className="border-t border-white/[0.06] section-pad">
             <div className="container-page">
               <div data-motion-header className="gradient-border relative overflow-hidden rounded-[26px] p-7 sm:p-10 lg:p-14">
-                <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-violet-600/15 blur-[90px]" />
+                <div className="aurora pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-violet-600/25" />
                 <div className="relative grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
                   <div>
                     <p className="eyebrow">Why BuildBridge</p>
@@ -896,7 +883,7 @@ export default function Home() {
           <section className="relative overflow-hidden border-t border-white/[0.06] py-20 lg:py-28">
             <div className="pointer-events-none absolute inset-0">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(124,58,237,0.28),transparent_55%)]" />
-              <div data-float="20" className="absolute left-1/2 top-10 h-64 w-[720px] -translate-x-1/2 rounded-full bg-brand-500/10 blur-[100px]" />
+              <div className="aurora absolute left-1/2 top-10 h-64 w-[720px] -translate-x-1/2 rounded-full bg-brand-500/15" />
             </div>
             <div className="container-page relative text-center">
               <div data-motion-header className="mx-auto max-w-3xl">

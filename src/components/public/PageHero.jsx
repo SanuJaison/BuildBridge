@@ -15,9 +15,9 @@ export default function PageHero({
     <section className={`relative overflow-hidden border-b border-white/[0.06] ${compact ? "pt-28 pb-10 sm:pt-32 sm:pb-12" : "pt-32 pb-14 sm:pt-36 sm:pb-16"}`}>
       <div className="pointer-events-none absolute inset-0">
         <div className="hero-grid absolute inset-0 opacity-70" />
-        <div data-parallax="-0.16" className="absolute -top-44 left-1/4 h-80 w-[560px] rounded-full bg-violet-600/12 blur-[120px]" />
-        <div data-parallax="0.12" className="absolute -right-20 top-0 h-64 w-64 rounded-full bg-sky-500/8 blur-[100px]" />
-        <div data-parallax="-0.06" className="absolute -right-44 top-1/2 hidden h-[34rem] w-[52rem] -translate-y-1/2 lg:block">
+        <div data-parallax="-0.16" className="aurora absolute -top-44 left-1/4 h-80 w-[560px] rounded-full bg-violet-600/20" />
+        <div data-parallax="0.12" className="aurora absolute -right-20 top-0 h-64 w-64 rounded-full bg-sky-500/15" />
+        <div className="absolute -right-44 top-1/2 hidden h-[34rem] w-[52rem] -translate-y-1/2 lg:block">
           <OrbitMotif className="h-full w-full opacity-60" />
         </div>
       </div>

@@ -117,7 +117,7 @@ export default function Categories() {
                       className="h-full w-full object-cover opacity-80 transition duration-700 group-hover/image:scale-105 group-hover/image:opacity-100"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-ink-950/85 via-transparent to-transparent" />
-                    <span className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-ink-950/60 text-brand-200 backdrop-blur">
+                    <span className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-ink-950/75 text-brand-200">
                       <CategoryIcon name={category.icon} size={15} />
                     </span>
                   </Link>

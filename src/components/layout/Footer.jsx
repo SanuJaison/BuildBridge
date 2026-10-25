@@ -39,7 +39,7 @@ export default function Footer() {
 
   return (
     <footer className="relative overflow-hidden border-t border-white/8 bg-ink-900">
-      <div className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[700px] -translate-x-1/2 rounded-full bg-brand-600/10 blur-[110px]" />
+      <div className="aurora pointer-events-none absolute -top-40 left-1/2 h-80 w-[700px] -translate-x-1/2 rounded-full bg-brand-600/20" />
       <div className="container-page relative py-14 lg:py-20">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_2.4fr]">
           <div className="max-w-sm">

@@ -33,6 +33,8 @@ export default function MotionSystem() {
     const cleanups = [];
     let cancelled = false;
     let bindTimer = 0;
+    const animatedMedia = new Set();
+    const iconShapes = new Map();
 
     html.classList.add("motion-ready");
 
@@ -183,13 +185,14 @@ export default function MotionSystem() {
           const items = Array.from(list.children).filter((child) => !child.closest("[data-no-motion]"));
           if (!items.length) return;
           list.dataset.motionListBound = "true";
-          gsap.set(items, { opacity: 0, y: 18 });
+          gsap.set(items, { opacity: 0, y: 30, scale: 0.985 });
           const tween = gsap.to(items, {
             opacity: 1,
             y: 0,
-            duration: 0.7,
-            stagger: 0.07,
-            ease: "power3.out",
+            scale: 1,
+            duration: 0.85,
+            stagger: 0.08,
+            ease: "power4.out",
             scrollTrigger: { trigger: list, start: "top 92%", once: true },
             onComplete: () => gsap.set(items, { clearProps: "transform,opacity" }),
           });
@@ -202,7 +205,37 @@ export default function MotionSystem() {
 
       freshCards.forEach((element) => {
         element.dataset.motionCardBound = "true";
-        gsap.set(element, { opacity: 0, y: 26 });
+        gsap.set(element, { opacity: 0, y: 46, scale: 0.97 });
+
+        const media = Array.from(element.querySelectorAll("img")).filter((image) => {
+          const rect = image.getBoundingClientRect();
+          return rect.width >= 140 && rect.height >= 72;
+        });
+        if (media.length) {
+          gsap.set(media, { scale: 1.12, transformOrigin: "50% 50%" });
+          media.forEach((image) => animatedMedia.add(image));
+        }
+
+        const icon = element.querySelector("svg.lucide");
+        if (!icon) return;
+        const shapes = Array.from(icon.querySelectorAll("path, circle, ellipse, line, polyline, polygon")).filter((shape) => {
+          const stroke = shape.getAttribute("stroke") || getComputedStyle(shape).stroke;
+          if (!stroke || stroke === "none") return false;
+          const fill = getComputedStyle(shape).fill;
+          return !fill || fill === "none" || fill.startsWith("rgba(0, 0, 0, 0");
+        });
+        let prepared = false;
+        shapes.forEach((shape) => {
+          try {
+            const length = shape.getTotalLength();
+            if (!Number.isFinite(length) || length <= 0) return;
+            gsap.set(shape, { strokeDasharray: length, strokeDashoffset: length });
+            prepared = true;
+          } catch {
+            // Non-path SVG elements can fail; skip them.
+          }
+        });
+        if (prepared) iconShapes.set(element, shapes);
       });
 
       if (freshCards.length) {
@@ -215,16 +248,44 @@ export default function MotionSystem() {
             const tween = gsap.to(batch, {
               opacity: 1,
               y: 0,
-              duration: 0.82,
-              stagger: 0.055,
-              ease: "power3.out",
+              scale: 1,
+              duration: 0.95,
+              stagger: 0.07,
+              ease: "power4.out",
               overwrite: "auto",
               onComplete: () => {
                 batch.forEach((element) => {
                   element.dataset.motionRevealed = "true";
+                  gsap.set(element, { clearProps: "transform,opacity" });
+                  const shapes = iconShapes.get(element);
+                  if (!shapes) return;
+                  iconShapes.delete(element);
+                  const iconTween = gsap.to(shapes, {
+                    strokeDashoffset: 0,
+                    duration: 0.8,
+                    stagger: 0.04,
+                    ease: "power2.out",
+                    onComplete: () => gsap.set(shapes, { clearProps: "strokeDasharray,strokeDashoffset" }),
+                  });
+                  created.push(iconTween);
                 });
               },
             });
+
+            const batchMedia = batch.flatMap((element) =>
+              Array.from(element.querySelectorAll("img")).filter((image) => animatedMedia.has(image))
+            );
+            if (batchMedia.length) {
+              const mediaTween = gsap.to(batchMedia, {
+                scale: 1,
+                duration: 1.25,
+                stagger: 0.05,
+                ease: "power3.out",
+                onComplete: () => gsap.set(batchMedia, { clearProps: "transform" }),
+              });
+              created.push(mediaTween);
+            }
+
             created.push(tween);
           },
         });
@@ -371,57 +432,6 @@ export default function MotionSystem() {
           track(tween);
         });
 
-      all("[data-orbit-spin], [data-orbit-counter]")
-        .filter((element) => !element.dataset.orbitBound)
-        .forEach((element) => {
-          element.dataset.orbitBound = "true";
-          const direction = element.hasAttribute("data-orbit-counter") ? -1 : 1;
-          const duration = Number(element.dataset.orbitDuration) || 38;
-          track(
-            gsap.to(element, {
-              rotation: 360 * direction,
-              duration,
-              repeat: -1,
-              ease: "none",
-              transformOrigin: "50% 50%",
-            })
-          );
-        });
-
-      all("[data-orbit-pulse]")
-        .filter((element) => !element.dataset.pulseBound)
-        .forEach((element) => {
-          element.dataset.pulseBound = "true";
-          track(
-            gsap.to(element, {
-              scale: 1.35,
-              opacity: 0.45,
-              duration: 2.8,
-              repeat: -1,
-              yoyo: true,
-              ease: "sine.inOut",
-              transformOrigin: "50% 50%",
-            })
-          );
-        });
-
-      all("[data-float]")
-        .filter((element) => !element.dataset.floatBound)
-        .forEach((element) => {
-          element.dataset.floatBound = "true";
-          const distance = Number(element.dataset.float) || 12;
-          track(
-            gsap.to(element, {
-              y: -distance,
-              duration: 5.5 + Math.random() * 3.5,
-              repeat: -1,
-              yoyo: true,
-              ease: "sine.inOut",
-              delay: Math.random() * 1.5,
-            })
-          );
-        });
-
       all("[data-parallax]")
         .filter((element) => !element.dataset.parallaxBound)
         .forEach((element) => {
@@ -438,6 +448,59 @@ export default function MotionSystem() {
               invalidateOnRefresh: true,
             },
           });
+          track(tween);
+        });
+
+      all("[data-scroll-words]")
+        .filter((element) => !element.closest("[data-no-motion]") && !element.dataset.scrollWordsBound)
+        .forEach((element) => {
+          element.dataset.scrollWordsBound = "true";
+          const split = new SplitText(element, {
+            type: "words",
+            wordsClass: "scroll-word",
+            aria: "auto",
+          });
+          splits.push(split);
+          const tween = gsap.fromTo(
+            split.words,
+            { opacity: 0.16, yPercent: 26 },
+            {
+              opacity: 1,
+              yPercent: 0,
+              stagger: 0.055,
+              ease: "none",
+              scrollTrigger: {
+                trigger: element,
+                start: "top 86%",
+                end: "bottom 58%",
+                scrub: 0.5,
+                invalidateOnRefresh: true,
+              },
+            }
+          );
+          track(tween);
+        });
+
+      all("[data-scroll-rotate]")
+        .filter((element) => !element.dataset.scrollRotateBound)
+        .forEach((element) => {
+          element.dataset.scrollRotateBound = "true";
+          const strength = Number(element.dataset.scrollRotate) || 6;
+          const tween = gsap.fromTo(
+            element,
+            { rotation: -strength },
+            {
+              rotation: strength,
+              ease: "none",
+              scrollTrigger: {
+                trigger: element.closest("section") || element,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 0.9,
+                invalidateOnRefresh: true,
+              },
+            }
+          );
           track(tween);
         });
 
@@ -483,6 +546,82 @@ export default function MotionSystem() {
           track(tween);
         });
 
+      if (rich) {
+        const collectAutoBlocks = (element, depth, output) => {
+          if (!element || depth > 5) return;
+          if (element.closest("[data-no-motion]")) return;
+          if (element.dataset.autoBound) return;
+          if (
+            element.matches(
+              "article, [data-card], [data-motion-header], [data-motion-list], [data-reveal], [data-split], [data-page-enter], [data-auto-skip]"
+            )
+          ) {
+            return;
+          }
+          if (element.querySelector("[data-motion-header], [data-motion-list], [data-reveal]")) return;
+          if (element.tagName === "SCRIPT" || element.tagName === "STYLE") return;
+          const style = getComputedStyle(element);
+          if (style.position === "sticky" || style.display === "none") return;
+          const rect = element.getBoundingClientRect();
+          if (rect.height < 8 || rect.width < 8) return;
+          const isGrid =
+            element.classList.contains("grid") ||
+            (typeof element.className === "string" && element.className.includes("grid-cols"));
+          const hasCards = Boolean(element.querySelector("article, [data-card]"));
+          if ((hasCards || (isGrid && element.children.length > 1)) && depth < 4) {
+            Array.from(element.children).forEach((child) => collectAutoBlocks(child, depth + 1, output));
+            return;
+          }
+          const meaningful =
+            element.textContent.trim().length > 0 ||
+            Boolean(element.querySelector("img, video, svg, canvas, form, input, textarea, select, button, a"));
+          if (meaningful) output.push(element);
+        };
+
+        const autoBlocks = [];
+        all(".container-page").forEach((container) => {
+          if (container.dataset.autoBound) return;
+          if (container.closest("[data-no-motion]")) return;
+          const section = container.closest("section");
+          if (section && section.querySelector("h1")) return;
+          container.dataset.autoBound = "true";
+          Array.from(container.children).forEach((child) => collectAutoBlocks(child, 0, autoBlocks));
+        });
+
+        const freshAuto = autoBlocks.filter((element) => !element.dataset.autoBound);
+        freshAuto.forEach((element) => {
+          element.dataset.autoBound = "true";
+          gsap.set(element, { opacity: 0, y: 34 });
+        });
+
+        if (freshAuto.length) {
+          const autoBatches = ScrollTrigger.batch(freshAuto, {
+            start: "top 93%",
+            once: true,
+            interval: 0.09,
+            batchMax: 10,
+            onEnter: (batch) => {
+              const tween = gsap.to(batch, {
+                opacity: 1,
+                y: 0,
+                duration: 0.9,
+                stagger: 0.06,
+                ease: "power3.out",
+                overwrite: "auto",
+                onComplete: () => {
+                  batch.forEach((element) => {
+                    element.dataset.autoDone = "true";
+                    gsap.set(element, { clearProps: "transform,opacity" });
+                  });
+                },
+              });
+              created.push(tween);
+            },
+          });
+          triggers.push(...autoBatches);
+        }
+      }
+
       ScrollTrigger.refresh();
     };
 
@@ -523,8 +662,9 @@ export default function MotionSystem() {
         .querySelectorAll(
           "[data-reveal-bound],[data-reveal-done],[data-motion-header-bound],[data-split-bound],[data-heading-bound]," +
             "[data-motion-card-bound],[data-motion-revealed],[data-card-tilt-bound],[data-tilt-bound],[data-magnetic-bound]," +
-            "[data-svg-draw-bound],[data-svg-drawn],[data-orbit-bound],[data-pulse-bound],[data-float-bound]," +
-            "[data-parallax-bound],[data-scroll-line-bound],[data-count-bound]"
+            "[data-svg-draw-bound],[data-svg-drawn]," +
+            "[data-parallax-bound],[data-scroll-line-bound],[data-count-bound],[data-scroll-words-bound]," +
+            "[data-scroll-rotate-bound],[data-auto-bound],[data-auto-done]"
         )
         .forEach((element) => {
           gsap.set(element, {
@@ -543,13 +683,19 @@ export default function MotionSystem() {
           delete dataset.magneticBound;
           delete dataset.svgDrawBound;
           delete dataset.svgDrawn;
-          delete dataset.orbitBound;
-          delete dataset.pulseBound;
-          delete dataset.floatBound;
           delete dataset.parallaxBound;
           delete dataset.scrollLineBound;
           delete dataset.countBound;
+          delete dataset.scrollWordsBound;
+          delete dataset.scrollRotateBound;
+          delete dataset.autoBound;
+          delete dataset.autoDone;
         });
+
+      iconShapes.forEach((shapes) => gsap.set(shapes, { clearProps: "strokeDasharray,strokeDashoffset" }));
+      iconShapes.clear();
+      gsap.set(Array.from(animatedMedia), { clearProps: "transform" });
+      animatedMedia.clear();
 
       root.querySelectorAll("[data-count]").forEach((element) => {
         if (element.dataset.countOriginal !== undefined) element.textContent = element.dataset.countOriginal;

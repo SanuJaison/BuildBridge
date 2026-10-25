@@ -12,7 +12,7 @@ export default function NotFound() {
     <div className="relative overflow-hidden pb-20 pt-32 sm:pt-40">
       <div className="pointer-events-none absolute inset-0">
         <div className="hero-grid absolute inset-0 opacity-60" />
-        <div className="absolute left-1/2 top-24 h-72 w-[640px] -translate-x-1/2 rounded-full bg-brand-600/12 blur-[110px]" />
+        <div className="aurora absolute left-1/2 top-24 h-72 w-[640px] -translate-x-1/2 rounded-full bg-brand-600/20" />
       </div>
       <div className="container-page relative text-center">
         <p className="font-serif text-[clamp(5rem,16vw,11rem)] italic leading-none text-white/[0.07]">404</p>

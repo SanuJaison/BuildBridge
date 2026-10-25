@@ -50,7 +50,7 @@ export default function Navbar() {
     <>
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-          solid ? "border-b border-white/[0.07] bg-ink-950/85 backdrop-blur-xl" : "bg-transparent"
+          solid ? "border-b border-white/[0.07] bg-ink-950/95" : "bg-transparent"
         }`}
       >
         <div className="container-page flex h-[74px] items-center justify-between gap-4">

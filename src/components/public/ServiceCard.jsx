@@ -32,10 +32,10 @@ export default function ServiceCard({ service, horizontal = false }) {
           className={`w-full ${horizontal ? "aspect-[16/10] sm:h-full sm:min-h-[168px]" : "aspect-[16/10]"}`}
         />
         <div className="absolute inset-x-0 top-0 flex items-start justify-between p-3.5">
-          <span className="chip border-white/15 bg-ink-950/60 text-[10px] text-white/80 backdrop-blur">
+          <span className="chip border-white/15 bg-ink-950/75 text-[10px] text-white/80">
             {service.category?.name || "Digital service"}
           </span>
-          <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/15 bg-ink-950/50 text-white/70 opacity-0 backdrop-blur transition group-hover:opacity-100">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/15 bg-ink-950/70 text-white/70 opacity-0 transition group-hover:opacity-100">
             <ArrowUpRight size={13} />
           </span>
         </div>
