@@ -7,7 +7,7 @@ export default function ProjectCard({ project, featured = false }) {
   if (!project) return null;
 
   return (
-    <article className="surface surface-hover group relative flex h-full flex-col overflow-hidden rounded-2xl">
+    <article data-card className="surface surface-hover group relative flex h-full flex-col overflow-hidden rounded-2xl">
       <Link
         to={`/portfolio/${project.slug}`}
         className="absolute inset-0 z-10"

@@ -8,7 +8,7 @@ export default function ReviewCard({ review, limit = 220, showProvider = true })
   if (!review) return null;
 
   return (
-    <article className="surface flex h-full flex-col rounded-2xl p-5">
+    <article data-card className="surface flex h-full flex-col rounded-2xl p-5">
       <div className="flex items-start justify-between gap-3">
         <Rating value={review.rating} size={13} showValue={false} />
         <Quote size={18} className="text-brand-400/40" />

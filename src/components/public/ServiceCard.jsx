@@ -11,6 +11,7 @@ export default function ServiceCard({ service, horizontal = false }) {
 
   return (
     <article
+      data-card
       className={`surface surface-hover group relative flex h-full overflow-hidden rounded-2xl ${
         horizontal ? "flex-col sm:flex-row" : "flex-col"
       }`}

@@ -1,9 +1,11 @@
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SplitText } from "gsap/SplitText";
+import { compactNumber } from "../../lib/format";
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, SplitText);
 
 const REVEAL_VARIANTS = {
   up: { y: 28, x: 0, scale: 1 },
@@ -15,23 +17,146 @@ const REVEAL_VARIANTS = {
 export default function MotionSystem() {
   const { pathname } = useLocation();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    const root = document.querySelector("[data-motion-scope]") || document.querySelector("main");
+    if (!root) return undefined;
 
-    document.documentElement.classList.add("motion-ready");
+    const scope = root.dataset.motionScope || "app";
+    const rich = scope === "public";
+    const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const html = document.documentElement;
+    const all = (selector) => Array.from(root.querySelectorAll(selector));
+    const created = [];
+    const triggers = [];
+    const splits = [];
+    const cleanups = [];
+    let cancelled = false;
+    let bindTimer = 0;
 
-    const scrollTriggers = [];
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const element = entry.target;
-          observer.unobserve(element);
-          if (element.dataset.revealDone) return;
-          element.dataset.revealDone = "true";
+    html.classList.add("motion-ready");
+
+    const track = (animation) => {
+      if (!animation) return animation;
+      created.push(animation);
+      if (animation.scrollTrigger) triggers.push(animation.scrollTrigger);
+      return animation;
+    };
+
+    const splitHeading = (element, timeline, position = 0) => {
+      const split = new SplitText(element, {
+        type: "words",
+        wordsClass: "split-word",
+        aria: "auto",
+      });
+      splits.push(split);
+      timeline.from(
+        split.words,
+        {
+          yPercent: 115,
+          opacity: 0,
+          rotate: 1.5,
+          duration: 0.82,
+          ease: "power4.out",
+          stagger: 0.038,
+          clearProps: "transform,opacity",
+        },
+        position
+      );
+      return split;
+    };
+
+    const pageEnter = all("[data-page-enter]").filter((element) => !element.matches("h1, h2"));
+    if (pageEnter.length) {
+      track(
+        gsap.fromTo(
+          pageEnter,
+          { autoAlpha: 0, y: 16 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.75,
+            stagger: 0.055,
+            delay: 0.05,
+            ease: "power3.out",
+            clearProps: "opacity,visibility,transform",
+          }
+        )
+      );
+    }
+
+    const bind = () => {
+      ScrollTrigger.getAll().forEach((trigger) => {
+        if (trigger.trigger && !trigger.trigger.isConnected) trigger.kill();
+      });
+
+      all("[data-motion-header]").forEach((header) => {
+        if (header.dataset.motionHeaderBound) return;
+        header.dataset.motionHeaderBound = "true";
+        const heading = header.querySelector("[data-split]");
+        const eyebrow = header.querySelector(".eyebrow");
+        const copy = header.querySelector("[data-motion-header-copy]");
+        const action = header.querySelector("[data-motion-header-action]");
+        if (!heading && !eyebrow && !copy && !action) return;
+
+        const timeline = gsap.timeline({
+          scrollTrigger: { trigger: header, start: "top 88%", once: true },
+        });
+        if (timeline.scrollTrigger) triggers.push(timeline.scrollTrigger);
+        if (eyebrow) timeline.from(eyebrow, { opacity: 0, y: 12, duration: 0.5, ease: "power2.out" }, 0);
+        if (heading) splitHeading(heading, timeline, 0.06);
+        if (copy) timeline.from(copy, { opacity: 0, y: 14, duration: 0.6, ease: "power2.out" }, 0.38);
+        if (action) timeline.from(action, { opacity: 0, y: 12, duration: 0.5, ease: "power2.out" }, 0.46);
+        created.push(timeline);
+      });
+
+      all("[data-split]")
+        .filter((element) => !element.closest("[data-motion-header]") && !element.dataset.splitBound)
+        .forEach((element) => {
+          element.dataset.splitBound = "true";
+          const timeline = gsap.timeline({
+            scrollTrigger: { trigger: element, start: "top 88%", once: true },
+          });
+          if (timeline.scrollTrigger) triggers.push(timeline.scrollTrigger);
+          splitHeading(element, timeline);
+          created.push(timeline);
+        });
+
+      all("h1, h2")
+        .filter(
+          (element) =>
+            !element.closest("[data-split]") &&
+            !element.closest("[data-motion-header]") &&
+            !element.closest("[data-reveal]") &&
+            !element.closest("[data-motion-skip]") &&
+            !element.closest("article") &&
+            !element.dataset.headingBound &&
+            element.textContent.trim()
+        )
+        .forEach((element) => {
+          element.dataset.headingBound = "true";
+          const tween = gsap.fromTo(
+            element,
+            { opacity: 0, y: 22 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              ease: "power3.out",
+              clearProps: "transform,opacity",
+              scrollTrigger: { trigger: element, start: "top 92%", once: true },
+            }
+          );
+          track(tween);
+        });
+
+      all("[data-reveal]")
+        .filter((element) => !element.dataset.revealBound)
+        .forEach((element) => {
+          element.dataset.revealBound = "true";
           const variant = REVEAL_VARIANTS[element.dataset.reveal] || REVEAL_VARIANTS.up;
           const delay = Number(element.dataset.revealDelay || 0);
-          gsap.fromTo(
+          const tween = gsap.fromTo(
             element,
             { opacity: 0, ...variant },
             {
@@ -42,132 +167,406 @@ export default function MotionSystem() {
               duration: 0.85,
               delay,
               ease: "power3.out",
-              clearProps: "opacity,transform",
-              overwrite: true,
+              scrollTrigger: { trigger: element, start: "top 91%", once: true },
+              onComplete: () => {
+                element.dataset.revealDone = "true";
+                gsap.set(element, { clearProps: "transform,opacity" });
+              },
             }
           );
+          track(tween);
         });
-      },
-      { threshold: 0.08, rootMargin: "0px 0px -6% 0px" }
-    );
 
-    const tiltCleanups = [];
+      all("[data-motion-list]")
+        .filter((element) => !element.dataset.motionListBound)
+        .forEach((list) => {
+          const items = Array.from(list.children).filter((child) => !child.closest("[data-no-motion]"));
+          if (!items.length) return;
+          list.dataset.motionListBound = "true";
+          gsap.set(items, { opacity: 0, y: 18 });
+          const tween = gsap.to(items, {
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+            stagger: 0.07,
+            ease: "power3.out",
+            scrollTrigger: { trigger: list, start: "top 92%", once: true },
+            onComplete: () => gsap.set(items, { clearProps: "transform,opacity" }),
+          });
+          track(tween);
+        });
 
-    const bindInteractions = () => {
-      document.querySelectorAll("[data-reveal]").forEach((element) => {
-        if (element.dataset.revealBound) return;
-        element.dataset.revealBound = "true";
-        observer.observe(element);
+      const cardSet = new Set(all("article, [data-card]"));
+      const cardNodes = Array.from(cardSet).filter((element) => !element.closest("[data-no-motion]"));
+      const freshCards = cardNodes.filter((element) => !element.dataset.motionCardBound);
+
+      freshCards.forEach((element) => {
+        element.dataset.motionCardBound = "true";
+        gsap.set(element, { opacity: 0, y: 26 });
       });
 
-      document.querySelectorAll("[data-parallax]").forEach((element) => {
-        if (element.dataset.parallaxBound) return;
-        element.dataset.parallaxBound = "true";
-        const strength = Number(element.dataset.parallax) || 0.12;
-        const tween = gsap.to(element, {
-          yPercent: strength * 100,
-          ease: "none",
-          scrollTrigger: {
-            trigger: element.closest("section") || element,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: 0.8,
+      if (freshCards.length) {
+        const batches = ScrollTrigger.batch(freshCards, {
+          start: "top 92%",
+          once: true,
+          interval: 0.08,
+          batchMax: 8,
+          onEnter: (batch) => {
+            const tween = gsap.to(batch, {
+              opacity: 1,
+              y: 0,
+              duration: 0.82,
+              stagger: 0.055,
+              ease: "power3.out",
+              overwrite: "auto",
+              onComplete: () => {
+                batch.forEach((element) => {
+                  element.dataset.motionRevealed = "true";
+                });
+              },
+            });
+            created.push(tween);
           },
         });
-        if (tween.scrollTrigger) scrollTriggers.push(tween.scrollTrigger);
-      });
+        triggers.push(...batches);
+      }
 
-      document.querySelectorAll("[data-tilt]").forEach((element) => {
-        if (element.dataset.tiltBound) return;
-        element.dataset.tiltBound = "true";
-        const max = Number(element.dataset.tilt) || 5;
-        gsap.set(element, { transformPerspective: 1100, transformStyle: "preserve-3d" });
-        const rotateX = gsap.quickTo(element, "rotationX", { duration: 0.5, ease: "power3.out" });
-        const rotateY = gsap.quickTo(element, "rotationY", { duration: 0.5, ease: "power3.out" });
-        const onMove = (event) => {
-          const rect = element.getBoundingClientRect();
-          const px = (event.clientX - rect.left) / rect.width - 0.5;
-          const py = (event.clientY - rect.top) / rect.height - 0.5;
-          rotateX(-py * max);
-          rotateY(px * max);
-        };
-        const onLeave = () => {
-          rotateX(0);
-          rotateY(0);
-        };
-        element.addEventListener("pointermove", onMove, { passive: true });
-        element.addEventListener("pointerleave", onLeave);
-        tiltCleanups.push(() => {
-          element.removeEventListener("pointermove", onMove);
-          element.removeEventListener("pointerleave", onLeave);
+      if (canHover) {
+        freshCards.forEach((card) => {
+          if (card.dataset.tiltBound || card.dataset.cardTiltBound) return;
+          card.dataset.cardTiltBound = "true";
+          card.classList.add("motion-card");
+          gsap.set(card, { transformPerspective: 1000 });
+          const rotateX = gsap.quickTo(card, "rotationX", { duration: 0.55, ease: "power3.out" });
+          const rotateY = gsap.quickTo(card, "rotationY", { duration: 0.55, ease: "power3.out" });
+          let rect = null;
+          const enter = () => {
+            rect = card.getBoundingClientRect();
+          };
+          const move = (event) => {
+            if (!rect) rect = card.getBoundingClientRect();
+            const px = (event.clientX - rect.left) / rect.width;
+            const py = (event.clientY - rect.top) / rect.height;
+            card.style.setProperty("--spot-x", `${Math.round(px * 100)}%`);
+            card.style.setProperty("--spot-y", `${Math.round(py * 100)}%`);
+            rotateX(-(py - 0.5) * 3);
+            rotateY((px - 0.5) * 3);
+          };
+          const leave = () => {
+            rect = null;
+            rotateX(0);
+            rotateY(0);
+          };
+          card.addEventListener("pointerenter", enter, { passive: true });
+          card.addEventListener("pointermove", move, { passive: true });
+          card.addEventListener("pointerleave", leave);
+          cleanups.push(() => {
+            card.removeEventListener("pointerenter", enter);
+            card.removeEventListener("pointermove", move);
+            card.removeEventListener("pointerleave", leave);
+          });
         });
-      });
+      }
 
-      document.querySelectorAll("[data-magnetic]").forEach((element) => {
-        if (element.dataset.magneticBound) return;
-        element.dataset.magneticBound = "true";
-        const strength = Number(element.dataset.magnetic) || 0.22;
-        const moveX = gsap.quickTo(element, "x", { duration: 0.45, ease: "power3.out" });
-        const moveY = gsap.quickTo(element, "y", { duration: 0.45, ease: "power3.out" });
-        const onMove = (event) => {
-          const rect = element.getBoundingClientRect();
-          moveX((event.clientX - (rect.left + rect.width / 2)) * strength);
-          moveY((event.clientY - (rect.top + rect.height / 2)) * strength);
-        };
-        const onLeave = () => {
-          moveX(0);
-          moveY(0);
-        };
-        element.addEventListener("pointermove", onMove, { passive: true });
-        element.addEventListener("pointerleave", onLeave);
-        tiltCleanups.push(() => {
-          element.removeEventListener("pointermove", onMove);
-          element.removeEventListener("pointerleave", onLeave);
+      all("[data-tilt]")
+        .filter((element) => !element.dataset.tiltBound)
+        .forEach((element) => {
+          element.dataset.tiltBound = "true";
+          const max = Number(element.dataset.tilt) || 5;
+          gsap.set(element, { transformPerspective: 1100, transformStyle: "preserve-3d" });
+          const rotateX = gsap.quickTo(element, "rotationX", { duration: 0.5, ease: "power3.out" });
+          const rotateY = gsap.quickTo(element, "rotationY", { duration: 0.5, ease: "power3.out" });
+          let rect = null;
+          const enter = () => {
+            rect = element.getBoundingClientRect();
+          };
+          const move = (event) => {
+            if (!rect) rect = element.getBoundingClientRect();
+            const px = (event.clientX - rect.left) / rect.width - 0.5;
+            const py = (event.clientY - rect.top) / rect.height - 0.5;
+            rotateX(-py * max);
+            rotateY(px * max);
+          };
+          const leave = () => {
+            rect = null;
+            rotateX(0);
+            rotateY(0);
+          };
+          element.addEventListener("pointerenter", enter, { passive: true });
+          element.addEventListener("pointermove", move, { passive: true });
+          element.addEventListener("pointerleave", leave);
+          cleanups.push(() => {
+            element.removeEventListener("pointerenter", enter);
+            element.removeEventListener("pointermove", move);
+            element.removeEventListener("pointerleave", leave);
+          });
         });
-      });
+
+      const magnetCandidates = new Set([...all("[data-magnetic]"), ...(rich ? all(".btn-primary, .btn-light") : [])]);
+      Array.from(magnetCandidates)
+        .filter((element) => !element.dataset.magneticBound)
+        .forEach((element) => {
+          element.dataset.magneticBound = "true";
+          const strength = Number(element.dataset.magnetic) || 0.16;
+          const moveX = gsap.quickTo(element, "x", { duration: 0.45, ease: "power3.out" });
+          const moveY = gsap.quickTo(element, "y", { duration: 0.45, ease: "power3.out" });
+          let rect = null;
+          const enter = () => {
+            rect = element.getBoundingClientRect();
+          };
+          const move = (event) => {
+            if (!rect) rect = element.getBoundingClientRect();
+            moveX((event.clientX - (rect.left + rect.width / 2)) * strength);
+            moveY((event.clientY - (rect.top + rect.height / 2)) * strength);
+          };
+          const leave = () => {
+            rect = null;
+            moveX(0);
+            moveY(0);
+          };
+          element.addEventListener("pointerenter", enter, { passive: true });
+          element.addEventListener("pointermove", move, { passive: true });
+          element.addEventListener("pointerleave", leave);
+          cleanups.push(() => {
+            element.removeEventListener("pointerenter", enter);
+            element.removeEventListener("pointermove", move);
+            element.removeEventListener("pointerleave", leave);
+          });
+        });
+
+      all("[data-svg-draw]")
+        .filter((element) => !element.dataset.svgDrawBound)
+        .forEach((host) => {
+          host.dataset.svgDrawBound = "true";
+          const selector = "path, circle, ellipse, line, polyline, polygon";
+          const shapes = host.matches(selector) ? [host] : Array.from(host.querySelectorAll(selector));
+          const drawable = shapes.filter((shape) => {
+            if (shape.dataset.svgDrawn) return false;
+            const stroke = shape.getAttribute("stroke") || getComputedStyle(shape).stroke;
+            return stroke && stroke !== "none";
+          });
+          if (!drawable.length) return;
+          drawable.forEach((shape) => {
+            shape.dataset.svgDrawn = "true";
+            try {
+              const length = shape.getTotalLength();
+              gsap.set(shape, { strokeDasharray: length, strokeDashoffset: length });
+            } catch {
+              shape.dataset.svgDrawn = "skip";
+            }
+          });
+          const ready = drawable.filter((shape) => shape.dataset.svgDrawn === "true");
+          if (!ready.length) return;
+          const tween = gsap.to(ready, {
+            strokeDashoffset: 0,
+            duration: 1.7,
+            stagger: 0.12,
+            ease: "power2.inOut",
+            scrollTrigger: {
+              trigger: host.closest("[data-svg-trigger]") || host,
+              start: "top 92%",
+              once: true,
+            },
+          });
+          track(tween);
+        });
+
+      all("[data-orbit-spin], [data-orbit-counter]")
+        .filter((element) => !element.dataset.orbitBound)
+        .forEach((element) => {
+          element.dataset.orbitBound = "true";
+          const direction = element.hasAttribute("data-orbit-counter") ? -1 : 1;
+          const duration = Number(element.dataset.orbitDuration) || 38;
+          track(
+            gsap.to(element, {
+              rotation: 360 * direction,
+              duration,
+              repeat: -1,
+              ease: "none",
+              transformOrigin: "50% 50%",
+            })
+          );
+        });
+
+      all("[data-orbit-pulse]")
+        .filter((element) => !element.dataset.pulseBound)
+        .forEach((element) => {
+          element.dataset.pulseBound = "true";
+          track(
+            gsap.to(element, {
+              scale: 1.35,
+              opacity: 0.45,
+              duration: 2.8,
+              repeat: -1,
+              yoyo: true,
+              ease: "sine.inOut",
+              transformOrigin: "50% 50%",
+            })
+          );
+        });
+
+      all("[data-float]")
+        .filter((element) => !element.dataset.floatBound)
+        .forEach((element) => {
+          element.dataset.floatBound = "true";
+          const distance = Number(element.dataset.float) || 12;
+          track(
+            gsap.to(element, {
+              y: -distance,
+              duration: 5.5 + Math.random() * 3.5,
+              repeat: -1,
+              yoyo: true,
+              ease: "sine.inOut",
+              delay: Math.random() * 1.5,
+            })
+          );
+        });
+
+      all("[data-parallax]")
+        .filter((element) => !element.dataset.parallaxBound)
+        .forEach((element) => {
+          element.dataset.parallaxBound = "true";
+          const strength = Number(element.dataset.parallax) || 0.12;
+          const tween = gsap.to(element, {
+            yPercent: strength * 100,
+            ease: "none",
+            scrollTrigger: {
+              trigger: element.closest("section") || element,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: 0.8,
+              invalidateOnRefresh: true,
+            },
+          });
+          track(tween);
+        });
+
+      all("[data-scroll-line]")
+        .filter((element) => !element.dataset.scrollLineBound)
+        .forEach((element) => {
+          element.dataset.scrollLineBound = "true";
+          gsap.set(element, { scaleY: 0, transformOrigin: "top center" });
+          const tween = gsap.to(element, {
+            scaleY: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: element.closest("section") || element,
+              start: "top 72%",
+              end: "bottom 58%",
+              scrub: 0.6,
+              invalidateOnRefresh: true,
+            },
+          });
+          track(tween);
+        });
+
+      all("[data-count]")
+        .filter((element) => !element.dataset.countBound)
+        .forEach((element) => {
+          const target = Number(element.dataset.count);
+          if (!Number.isFinite(target)) return;
+          element.dataset.countBound = "true";
+          element.dataset.countOriginal = element.textContent;
+          const compact = element.dataset.countFormat !== "raw";
+          const state = { value: 0 };
+          const render = () => {
+            element.textContent = compact ? compactNumber(state.value) : Math.round(state.value).toLocaleString();
+          };
+          render();
+          const tween = gsap.to(state, {
+            value: target,
+            duration: 1.6,
+            ease: "power2.out",
+            onUpdate: render,
+            scrollTrigger: { trigger: element, start: "top 95%", once: true },
+          });
+          track(tween);
+        });
+
+      ScrollTrigger.refresh();
     };
 
-    bindInteractions();
+    bind();
 
-    const mutation = new MutationObserver(() => bindInteractions());
-    mutation.observe(document.body, { childList: true, subtree: true });
-
-    const pageEnter = document.querySelectorAll("[data-page-enter]");
-    if (pageEnter.length) {
-      pageEnter.forEach((element) => {
-        element.dataset.pageEnterDone = "true";
-      });
-      gsap.fromTo(
-        pageEnter,
-        { opacity: 0, y: 22 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          stagger: 0.075,
-          ease: "power3.out",
-          clearProps: "opacity,transform",
-          overwrite: true,
-        }
-      );
+    const refresh = () => {
+      if (cancelled) return;
+      ScrollTrigger.refresh();
+    };
+    const frame = window.requestAnimationFrame(refresh);
+    const settle = window.setTimeout(refresh, 380);
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(refresh).catch(() => {});
     }
 
-    const refresh = () => ScrollTrigger.refresh();
-    const frame = window.requestAnimationFrame(() => {
-      refresh();
-      window.setTimeout(refresh, 350);
+    const observer = new MutationObserver(() => {
+      window.clearTimeout(bindTimer);
+      bindTimer = window.setTimeout(() => {
+        if (cancelled) return;
+        bind();
+      }, 120);
     });
-    window.addEventListener("load", refresh);
+    observer.observe(document.body, { childList: true, subtree: true });
 
-    return () => {
-      mutation.disconnect();
-      observer.disconnect();
-      scrollTriggers.forEach((trigger) => trigger.kill());
-      tiltCleanups.forEach((cleanup) => cleanup());
+    const cleanup = () => {
+      cancelled = true;
+      window.clearTimeout(bindTimer);
+      window.clearTimeout(settle);
       window.cancelAnimationFrame(frame);
-      window.removeEventListener("load", refresh);
-      gsap.killTweensOf(pageEnter);
+      window.removeEventListener("beforeunload", cleanup);
+      observer.disconnect();
+      cleanups.forEach((fn) => fn());
+      created.forEach((animation) => animation.kill());
+      triggers.forEach((trigger) => trigger.kill());
+      splits.forEach((split) => split.revert());
+
+      root
+        .querySelectorAll(
+          "[data-reveal-bound],[data-reveal-done],[data-motion-header-bound],[data-split-bound],[data-heading-bound]," +
+            "[data-motion-card-bound],[data-motion-revealed],[data-card-tilt-bound],[data-tilt-bound],[data-magnetic-bound]," +
+            "[data-svg-draw-bound],[data-svg-drawn],[data-orbit-bound],[data-pulse-bound],[data-float-bound]," +
+            "[data-parallax-bound],[data-scroll-line-bound],[data-count-bound]"
+        )
+        .forEach((element) => {
+          gsap.set(element, {
+            clearProps: "opacity,visibility,transform,strokeDasharray,strokeDashoffset",
+          });
+          const { dataset } = element;
+          delete dataset.revealBound;
+          delete dataset.revealDone;
+          delete dataset.motionHeaderBound;
+          delete dataset.splitBound;
+          delete dataset.headingBound;
+          delete dataset.motionCardBound;
+          delete dataset.motionRevealed;
+          delete dataset.cardTiltBound;
+          delete dataset.tiltBound;
+          delete dataset.magneticBound;
+          delete dataset.svgDrawBound;
+          delete dataset.svgDrawn;
+          delete dataset.orbitBound;
+          delete dataset.pulseBound;
+          delete dataset.floatBound;
+          delete dataset.parallaxBound;
+          delete dataset.scrollLineBound;
+          delete dataset.countBound;
+        });
+
+      root.querySelectorAll("[data-count]").forEach((element) => {
+        if (element.dataset.countOriginal !== undefined) element.textContent = element.dataset.countOriginal;
+        delete element.dataset.countOriginal;
+      });
+
+      root.querySelectorAll("[data-motion-list-bound]").forEach((list) => {
+        Array.from(list.children).forEach((child) => gsap.set(child, { clearProps: "opacity,transform" }));
+        delete list.dataset.motionListBound;
+      });
+
+      html.classList.remove("motion-ready");
     };
+
+    window.addEventListener("beforeunload", cleanup, { once: true });
+
+    return cleanup;
   }, [pathname]);
 
   return null;

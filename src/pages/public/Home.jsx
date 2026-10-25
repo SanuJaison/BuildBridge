@@ -20,6 +20,7 @@ import { money, POPULAR_SEARCHES, PROVIDER_TYPE_LABELS, compactNumber } from "..
 import { useBranding } from "../../contexts/BrandingContext";
 import usePageTitle from "../../hooks/usePageTitle";
 import SectionHeader from "../../components/public/SectionHeader";
+import OrbitMotif from "../../components/public/OrbitMotif";
 import CategoryIcon from "../../components/public/CategoryIcon";
 import ProviderCard from "../../components/public/ProviderCard";
 import ServiceCard from "../../components/public/ServiceCard";
@@ -106,8 +107,12 @@ function HeroVisual({ provider, project }) {
 
   return (
     <div className="relative mx-auto w-full max-w-[460px] px-2 sm:px-0">
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[0.055]" />
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[0.04]" />
+      <div
+        data-float="10"
+        className="hero-orbit pointer-events-none absolute left-1/2 top-1/2 hidden h-[560px] w-[760px] max-w-none -translate-x-1/2 -translate-y-1/2 sm:block"
+      >
+        <OrbitMotif className="h-full w-full opacity-80" />
+      </div>
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-600/15 blur-[80px]" />
 
       <div className="hero-visual relative z-10" data-tilt="4">
@@ -270,7 +275,6 @@ export default function Home() {
   }, [providers, talentTab]);
 
   useEffect(() => {
-    if (!data) return undefined;
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
@@ -281,9 +285,26 @@ export default function Home() {
           .from(".hero-copy", { opacity: 0, y: 18, duration: 0.7 }, "-=0.55")
           .from(".hero-search", { opacity: 0, y: 18, duration: 0.65 }, "-=0.45")
           .from(".hero-secondary", { opacity: 0, y: 14, duration: 0.55 }, "-=0.4")
-          .from(".hero-visual", { opacity: 0, y: 34, scale: 0.97, duration: 1, ease: "power2.out" }, 0.35)
-          .from(".hero-proof", { opacity: 0, y: 12, duration: 0.5 }, "-=0.5");
+          .from(".hero-proof", { opacity: 0, y: 12, duration: 0.5 }, "-=0.35");
+      });
+      return () => mm.revert();
+    }, landingRef);
 
+    return () => ctx.revert();
+  }, []);
+
+  useEffect(() => {
+    if (!data) return undefined;
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.from(".hero-visual", {
+          opacity: 0,
+          y: 34,
+          scale: 0.97,
+          duration: 1,
+          ease: "power2.out",
+        });
         gsap.to(".hero-float", {
           y: -12,
           duration: 4.5,
@@ -307,9 +328,9 @@ export default function Home() {
     <div ref={landingRef} className="overflow-hidden">
       <section className="relative">
         <div className="pointer-events-none absolute inset-0">
-          <div className="hero-grid absolute inset-0" />
-          <div className="aurora absolute -left-32 top-0 h-[420px] w-[420px] rounded-full bg-violet-600/25" />
-          <div className="aurora absolute right-0 top-20 h-[380px] w-[380px] rounded-full bg-sky-500/15" />
+          <div data-parallax="0.08" className="hero-grid absolute inset-0" />
+          <div data-float="18" className="aurora absolute -left-32 top-0 h-[420px] w-[420px] rounded-full bg-violet-600/25" />
+          <div data-float="12" className="aurora absolute right-0 top-20 h-[380px] w-[380px] rounded-full bg-sky-500/15" />
           <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-transparent to-ink-950" />
         </div>
 
@@ -326,7 +347,7 @@ export default function Home() {
                 </span>
               </div>
 
-              <h1 className="heading-xl hero-title mt-7 text-white">
+              <h1 data-motion-skip className="heading-xl hero-title mt-7 text-white">
                 <span className="hero-line block overflow-hidden pb-1">
                   <span className="block">Build what&apos;s next.</span>
                 </span>
@@ -400,14 +421,14 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative">
+            <div className="relative" data-parallax="-0.05">
               <HeroVisual provider={providers[0]} project={projects[0]} />
             </div>
           </div>
         </div>
 
         <div className="container-page relative z-10">
-          <div className="glass grid grid-cols-2 divide-white/[0.07] rounded-2xl sm:grid-cols-4 sm:divide-x">
+          <div data-motion-list className="glass grid grid-cols-2 divide-white/[0.07] rounded-2xl sm:grid-cols-4 sm:divide-x">
             {[
               { label: "Specialists & teams", value: stats?.providers, suffix: "profiles" },
               { label: "Published services", value: stats?.services, suffix: "offers" },
@@ -415,7 +436,10 @@ export default function Home() {
               { label: "Verified reviews", value: stats?.verifiedReviews, suffix: "reviews" },
             ].map((item, index) => (
               <div key={item.label} className={`px-5 py-5 sm:px-7 ${index < 2 ? "border-b border-white/[0.07] sm:border-b-0" : ""}`}>
-                <p className="text-2xl font-semibold tracking-tight text-white">
+                <p
+                  className="text-2xl font-semibold tracking-tight text-white"
+                  data-count={!state.loading && Number.isFinite(item.value) ? item.value : undefined}
+                >
                   {state.loading ? "—" : compactNumber(item.value)}
                 </p>
                 <p className="mt-0.5 text-[10px] text-slate-500">{item.label}</p>
@@ -444,31 +468,30 @@ export default function Home() {
         <>
           <section className="border-t border-white/[0.06] section-pad">
             <div className="container-page">
-              <div data-reveal>
-                <SectionHeader
-                  eyebrow="11 disciplines"
-                  title={
-                    <>
-                      One place to find the specialist <span className="serif-accent text-brand-200">your idea needs.</span>
-                    </>
-                  }
-                  description="From a first landing page to a production SaaS platform, a playable prototype, or a brand that finally feels like you. Every category is database-driven and managed by administrators."
-                  action={
-                    <Link to="/categories" className={buttonClass("secondary", "md")}>
-                      Browse all categories
-                      <ArrowUpRight size={14} />
-                    </Link>
-                  }
-                />
-              </div>
+              <SectionHeader
+                eyebrow="11 disciplines"
+                title={
+                  <>
+                    One place to find the specialist <span className="serif-accent text-brand-200">your idea needs.</span>
+                  </>
+                }
+                description="From a first landing page to a production SaaS platform, a playable prototype, or a brand that finally feels like you. Every category is database-driven and managed by administrators."
+                action={
+                  <Link to="/categories" className={buttonClass("secondary", "md")}>
+                    Browse all categories
+                    <ArrowUpRight size={14} />
+                  </Link>
+                }
+              />
 
-              <div data-reveal className="mt-11 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
+              <div className="mt-11 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
                 {categories.map((category, index) => {
                   const large = index < 2;
                   return (
                     <Link
                       key={category.id}
                       to={`/categories/${category.slug}`}
+                      data-card
                       className={`group relative overflow-hidden rounded-2xl border border-white/[0.09] bg-white/[0.025] p-5 transition duration-300 hover:-translate-y-0.5 hover:border-brand-300/30 hover:bg-white/[0.045] ${
                         large ? "sm:col-span-2 lg:col-span-3" : "lg:col-span-2"
                       }`}
@@ -528,18 +551,21 @@ export default function Home() {
           <section className="relative overflow-hidden border-t border-white/[0.06] bg-ink-900/40 py-20 lg:py-28">
             <div className="pointer-events-none absolute inset-0">
               <div className="absolute left-1/2 top-0 h-[420px] w-[900px] -translate-x-1/2 rounded-full bg-brand-500/[0.07] blur-[130px]" />
-              <span className="text-stroke absolute -right-8 top-8 select-none text-[clamp(6rem,15vw,14rem)] font-semibold leading-none tracking-tighter">
+              <span
+                data-parallax="0.18"
+                className="text-stroke absolute -right-8 top-8 select-none text-[clamp(6rem,15vw,14rem)] font-semibold leading-none tracking-tighter"
+              >
                 TALENT
               </span>
             </div>
             <div className="container-page relative">
               <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
-                <div data-reveal>
+                <div data-motion-header>
                   <p className="eyebrow">Find your lane</p>
-                  <h2 className="heading-lg mt-3 text-white">
+                  <h2 data-split className="heading-lg mt-3 text-white">
                     Not one kind of <span className="serif-accent text-brand-200">builder.</span>
                   </h2>
-                  <p className="mt-5 max-w-md text-sm leading-relaxed text-slate-400">
+                  <p data-motion-header-copy className="mt-5 max-w-md text-sm leading-relaxed text-slate-400">
                     A game studio is not a growth team, and a mobile engineer is not a brand designer. Pick the role
                     that matches the work, then compare the people behind it. Every provider chooses their own roles
                     and gets a workspace shaped around them.
@@ -547,12 +573,13 @@ export default function Home() {
                   <Link
                     to="/providers"
                     data-magnetic
+                    data-motion-header-action
                     className={buttonClass("secondary", "md", "mt-7")}
                   >
                     Browse every specialist
                     <ArrowUpRight size={14} />
                   </Link>
-                  <div className="mt-9 grid max-w-md grid-cols-3 gap-3">
+                  <div data-motion-list className="mt-9 grid max-w-md grid-cols-3 gap-3">
                     {[
                       { value: "16", label: "Professional roles" },
                       { value: "11", label: "Disciplines" },
@@ -566,7 +593,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div data-reveal className="grid gap-x-8 sm:grid-cols-2">
+                <div data-motion-list className="grid gap-x-8 sm:grid-cols-2">
                   {PROVIDER_ROLES.map((role, index) => {
                     const Icon = role.icon;
                     return (
@@ -603,25 +630,23 @@ export default function Home() {
           <section className="relative border-t border-white/[0.06] section-pad">
             <div className="pointer-events-none absolute right-0 top-20 h-72 w-72 rounded-full bg-violet-600/[0.07] blur-[100px]" />
             <div className="container-page relative">
-              <div data-reveal>
-                <SectionHeader
-                  eyebrow="Featured talent"
-                  title={
-                    <>
-                      People who make <span className="serif-accent text-brand-200">ambitious</span> feel achievable.
-                    </>
-                  }
-                  description="Independent specialists, product studios, and teams with a clear point of view. Compare focus, proof of work, availability, and pricing before you reach out."
-                  action={
-                    <Link to="/providers" className={buttonClass("secondary", "md")}>
-                      Browse all talent
-                      <ArrowUpRight size={14} />
-                    </Link>
-                  }
-                />
-              </div>
+              <SectionHeader
+                eyebrow="Featured talent"
+                title={
+                  <>
+                    People who make <span className="serif-accent text-brand-200">ambitious</span> feel achievable.
+                  </>
+                }
+                description="Independent specialists, product studios, and teams with a clear point of view. Compare focus, proof of work, availability, and pricing before you reach out."
+                action={
+                  <Link to="/providers" className={buttonClass("secondary", "md")}>
+                    Browse all talent
+                    <ArrowUpRight size={14} />
+                  </Link>
+                }
+              />
 
-              <div data-reveal className="mt-8 flex flex-wrap gap-1.5">
+              <div data-motion-list className="mt-8 flex flex-wrap gap-1.5">
                 {TALENT_TABS.map((tab) => (
                   <button
                     key={tab.key}
@@ -638,7 +663,7 @@ export default function Home() {
                 ))}
               </div>
 
-              <div data-reveal className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {filteredTalents.map((provider) => (
                   <ProviderCard key={provider._id} provider={provider} />
                 ))}
@@ -651,24 +676,22 @@ export default function Home() {
 
           <section className="border-t border-white/[0.06] bg-ink-900/40 section-pad">
             <div className="container-page">
-              <div data-reveal>
-                <SectionHeader
-                  eyebrow="High-signal services"
-                  title={
-                    <>
-                      Clear scope. Honest pricing. <span className="serif-accent text-brand-200">Real craft.</span>
-                    </>
-                  }
-                  description="Start with a focused offer instead of a blank page. Service packages lay out deliverables, timelines, and what the provider needs from you up front."
-                  action={
-                    <Link to="/services" className={buttonClass("secondary", "md")}>
-                      Browse services
-                      <ArrowUpRight size={14} />
-                    </Link>
-                  }
-                />
-              </div>
-              <div data-reveal className="mt-11 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <SectionHeader
+                eyebrow="High-signal services"
+                title={
+                  <>
+                    Clear scope. Honest pricing. <span className="serif-accent text-brand-200">Real craft.</span>
+                  </>
+                }
+                description="Start with a focused offer instead of a blank page. Service packages lay out deliverables, timelines, and what the provider needs from you up front."
+                action={
+                  <Link to="/services" className={buttonClass("secondary", "md")}>
+                    Browse services
+                    <ArrowUpRight size={14} />
+                  </Link>
+                }
+              />
+              <div className="mt-11 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {services.slice(0, 6).map((service) => (
                   <ServiceCard key={service._id} service={service} />
                 ))}
@@ -678,24 +701,22 @@ export default function Home() {
 
           <section className="border-t border-white/[0.06] section-pad">
             <div className="container-page">
-              <div data-reveal>
-                <SectionHeader
-                  eyebrow="Recent work"
-                  title={
-                    <>
-                      Proof over <span className="serif-accent text-brand-200">promises.</span>
-                    </>
-                  }
-                  description="Case studies from fictional BuildBridge studios and specialists, created to demonstrate how work is presented on the platform."
-                  action={
-                    <Link to="/portfolio" className={buttonClass("secondary", "md")}>
-                      Explore the portfolio
-                      <ArrowUpRight size={14} />
-                    </Link>
-                  }
-                />
-              </div>
-              <div data-reveal className="mt-11 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <SectionHeader
+                eyebrow="Recent work"
+                title={
+                  <>
+                    Proof over <span className="serif-accent text-brand-200">promises.</span>
+                  </>
+                }
+                description="Case studies from fictional BuildBridge studios and specialists, created to demonstrate how work is presented on the platform."
+                action={
+                  <Link to="/portfolio" className={buttonClass("secondary", "md")}>
+                    Explore the portfolio
+                    <ArrowUpRight size={14} />
+                  </Link>
+                }
+              />
+              <div className="mt-11 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {projects.slice(0, 5).map((project, index) => (
                   <div key={project._id} className={index === 0 ? "sm:col-span-2" : ""}>
                     <ProjectCard project={project} featured={index === 0} />
@@ -708,16 +729,16 @@ export default function Home() {
           <section className="border-t border-white/[0.06] bg-ink-900/40 section-pad">
             <div className="container-page">
               <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
-                <div data-reveal>
+                <div data-motion-header>
                   <p className="eyebrow">How it works</p>
-                  <h2 className="mt-3 heading-lg text-white">
+                  <h2 data-split className="mt-3 heading-lg text-white">
                     From a hunch to a <span className="serif-accent text-brand-200">real build.</span>
                   </h2>
-                  <p className="mt-5 max-w-md text-sm leading-relaxed text-slate-400">
+                  <p data-motion-header-copy className="mt-5 max-w-md text-sm leading-relaxed text-slate-400">
                     BuildBridge keeps the messy middle of finding and working with a specialist in one place. No
                     drawn-out sales process. No mystery about who is behind a profile.
                   </p>
-                  <div className="mt-7 flex flex-wrap gap-3">
+                  <div data-motion-header-action className="mt-7 flex flex-wrap gap-3">
                     <Link to="/how-it-works" className={buttonClass("primary", "md")}>
                       See the full process
                       <ArrowRight size={14} />
@@ -726,7 +747,7 @@ export default function Home() {
                       Start a brief
                     </Link>
                   </div>
-                  <div className="mt-10 grid max-w-md grid-cols-2 gap-3">
+                  <div data-motion-list className="mt-10 grid max-w-md grid-cols-2 gap-3">
                     <div className="rounded-xl border border-white/8 bg-white/[0.025] p-4">
                       <Compass size={16} className="text-brand-300" />
                       <p className="mt-3 text-xs font-medium text-white">Curated discovery</p>
@@ -740,8 +761,9 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div data-reveal className="relative">
-                  <div className="absolute left-[27px] top-4 h-[calc(100%-2rem)] w-px bg-gradient-to-b from-brand-400/40 via-white/10 to-transparent" />
+                <div className="relative">
+                  <div data-scroll-line className="absolute left-[27px] top-4 h-[calc(100%-2rem)] w-px bg-gradient-to-b from-brand-400/40 via-white/10 to-transparent" />
+                  <div data-motion-list>
                   {[
                     {
                       number: "01",
@@ -782,6 +804,7 @@ export default function Home() {
                       </div>
                     </div>
                   ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -789,24 +812,24 @@ export default function Home() {
 
           <section className="border-t border-white/[0.06] section-pad">
             <div className="container-page">
-              <div data-reveal className="gradient-border relative overflow-hidden rounded-[26px] p-7 sm:p-10 lg:p-14">
+              <div data-motion-header className="gradient-border relative overflow-hidden rounded-[26px] p-7 sm:p-10 lg:p-14">
                 <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-violet-600/15 blur-[90px]" />
                 <div className="relative grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
                   <div>
                     <p className="eyebrow">Why BuildBridge</p>
-                    <h2 className="mt-3 heading-md text-white">
+                    <h2 data-split className="mt-3 heading-md text-white">
                       Trust, without the <span className="serif-accent text-brand-200">theatre.</span>
                     </h2>
-                    <p className="mt-4 max-w-md text-sm leading-relaxed text-slate-400">
+                    <p data-motion-header-copy className="mt-4 max-w-md text-sm leading-relaxed text-slate-400">
                       A marketplace should make the important things visible: who did the work, what was agreed, and
                       what happens next. We show our seams instead of inventing a perfect marketplace story.
                     </p>
-                    <Link to="/trust" className={buttonClass("secondary", "md", "mt-6")}>
+                    <Link to="/trust" data-motion-header-action className={buttonClass("secondary", "md", "mt-6")}>
                       Read our trust approach
                       <ArrowUpRight size={14} />
                     </Link>
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div data-motion-list className="grid gap-3 sm:grid-cols-2">
                     {TRUST_POINTS.map(({ icon: Icon, title, body }) => (
                       <div key={title} className="rounded-2xl border border-white/8 bg-white/[0.025] p-5">
                         <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-brand-200">
@@ -825,18 +848,16 @@ export default function Home() {
           {reviews.length ? (
             <section className="border-t border-white/[0.06] bg-ink-900/40 section-pad">
               <div className="container-page">
-                <div data-reveal>
-                  <SectionHeader
-                    eyebrow="Client feedback"
-                    title={
-                      <>
-                        Reviews that are tied to <span className="serif-accent text-brand-200">actual work.</span>
-                      </>
-                    }
-                    description="Every published review is associated with a completed engagement. The reviews below are part of the seeded demo data, not real client testimonials."
-                  />
-                </div>
-                <div data-reveal className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <SectionHeader
+                  eyebrow="Client feedback"
+                  title={
+                    <>
+                      Reviews that are tied to <span className="serif-accent text-brand-200">actual work.</span>
+                    </>
+                  }
+                  description="Every published review is associated with a completed engagement. The reviews below are part of the seeded demo data, not real client testimonials."
+                />
+                <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {reviews.slice(0, 3).map((review) => (
                     <ReviewCard key={review._id} review={review} />
                   ))}
@@ -848,16 +869,20 @@ export default function Home() {
           <section className="border-t border-white/[0.06] section-pad">
             <div className="container-page">
               <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
-                <div data-reveal>
+                <div data-motion-header>
                   <p className="eyebrow">Questions, answered</p>
-                  <h2 className="mt-3 heading-lg text-white">
+                  <h2 data-split className="mt-3 heading-lg text-white">
                     Before you <span className="serif-accent text-brand-200">reach out.</span>
                   </h2>
-                  <p className="mt-5 max-w-sm text-sm leading-relaxed text-slate-400">
+                  <p data-motion-header-copy className="mt-5 max-w-sm text-sm leading-relaxed text-slate-400">
                     Clear expectations make better collaborations. If your question is not here, the team is one message
                     away.
                   </p>
-                  <Link to="/contact" className="mt-6 inline-flex items-center gap-1.5 text-xs font-medium text-brand-300 hover:text-brand-200">
+                  <Link
+                    to="/contact"
+                    data-motion-header-action
+                    className="mt-6 inline-flex items-center gap-1.5 text-xs font-medium text-brand-300 hover:text-brand-200"
+                  >
                     Contact the team <ArrowUpRight size={13} />
                   </Link>
                 </div>
@@ -871,22 +896,22 @@ export default function Home() {
           <section className="relative overflow-hidden border-t border-white/[0.06] py-20 lg:py-28">
             <div className="pointer-events-none absolute inset-0">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(124,58,237,0.28),transparent_55%)]" />
-              <div className="absolute left-1/2 top-10 h-64 w-[720px] -translate-x-1/2 rounded-full bg-brand-500/10 blur-[100px]" />
+              <div data-float="20" className="absolute left-1/2 top-10 h-64 w-[720px] -translate-x-1/2 rounded-full bg-brand-500/10 blur-[100px]" />
             </div>
             <div className="container-page relative text-center">
-              <div data-reveal className="mx-auto max-w-3xl">
+              <div data-motion-header className="mx-auto max-w-3xl">
                 <Badge tone="violet" className="mx-auto">
                   <Sparkles size={11} />
                   A more considered way to build
                 </Badge>
-                <h2 className="mt-6 text-balance text-4xl font-semibold tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl">
+                <h2 data-split className="mt-6 text-balance text-4xl font-semibold tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl">
                   Your next build starts with a <span className="serif-accent text-gradient">conversation.</span>
                 </h2>
-                <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-slate-400">
+                <p data-motion-header-copy className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-slate-400">
                   Find the right specialist, share the brief, and make progress without the usual noise. BuildBridge is
                   free to explore in this demo.
                 </p>
-                <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <div data-motion-header-action className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                   <Link to="/providers" className={buttonClass("primary", "lg")}>
                     Find your next collaborator
                     <ArrowUpRight size={15} />

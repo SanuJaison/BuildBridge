@@ -19,7 +19,7 @@ export default function ProviderCard({ provider }) {
   const extraRoles = (provider.roles || []).filter((role) => role !== primaryRole?.value);
 
   return (
-    <article className="surface surface-hover group relative flex h-full flex-col overflow-hidden rounded-2xl">
+    <article data-card className="surface surface-hover group relative flex h-full flex-col overflow-hidden rounded-2xl">
       <Link
         to={`/providers/${provider.slug}`}
         className="absolute inset-0 z-10"

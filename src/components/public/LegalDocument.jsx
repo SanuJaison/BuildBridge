@@ -34,7 +34,7 @@ export default function LegalDocument({ eyebrow, title, intro, updated, sections
             </div>
           </aside>
 
-          <article className="min-w-0 max-w-3xl">
+          <article data-no-motion className="min-w-0 max-w-3xl">
             <div className="mb-8 rounded-xl border border-amber-300/15 bg-amber-300/[0.04] px-4 py-3 text-[11px] leading-relaxed text-amber-200/70">
               <span className="font-semibold text-amber-200">Demonstration build.</span> This document describes how the
               BuildBridge demo operates. It is not legal advice and does not create a binding commercial agreement.
@@ -43,7 +43,7 @@ export default function LegalDocument({ eyebrow, title, intro, updated, sections
             <div className="prose-lite">
               {sections.map((section) => (
                 <section key={section.id} id={section.id} className="scroll-mt-28">
-                  <h2>{section.title}</h2>
+                  <h2 data-split>{section.title}</h2>
                   {section.content}
                 </section>
               ))}
