@@ -150,6 +150,15 @@ export default function ProviderProfile() {
   return (
     <div className="pb-20">
       <section className="relative">
+        <div className="absolute inset-x-0 top-0 z-10">
+          <div className="container-page pt-[88px]">
+            <div className="hidden sm:inline-flex rounded-full border border-white/10 bg-ink-950/60 px-3.5 py-1.5">
+              <Breadcrumbs
+                items={[{ label: "Explore talent", to: "/providers" }, { label: provider.displayName }]}
+              />
+            </div>
+          </div>
+        </div>
         <div className="relative h-52 overflow-hidden sm:h-64 lg:h-72">
           <Artwork
             src={provider.coverImage}
@@ -164,18 +173,15 @@ export default function ProviderProfile() {
         </div>
 
         <div className="container-page relative">
-          <Breadcrumbs
-            items={[{ label: "Explore talent", to: "/providers" }, { label: provider.displayName }]}
-            className="-mt-48 mb-6 hidden sm:flex"
-          />
-          <div className="relative -mt-24 rounded-2xl border border-white/[0.09] bg-ink-900/70 p-5 backdrop-blur-xl sm:p-7">
+          <div className="-mt-14 sm:-mt-16 lg:-mt-20">
+            <div className="relative rounded-2xl border border-white/[0.09] bg-ink-900/95 p-5 sm:p-7">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                 <Avatar
                   src={provider.avatar}
                   name={provider.displayName}
                   size="2xl"
-                  className="-mt-16 shrink-0 ring-4 ring-ink-950 sm:-mt-20"
+                  className="-mt-12 shrink-0 ring-4 ring-ink-950 sm:-mt-14 lg:-mt-16"
                 />
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
@@ -264,6 +270,7 @@ export default function ProviderProfile() {
                   </p>
                 </div>
               ))}
+            </div>
             </div>
           </div>
         </div>

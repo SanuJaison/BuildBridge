@@ -39,12 +39,15 @@ export default function Login() {
     try {
       const account = await login({ email: form.email, password: form.password });
       toast.success("Welcome back", `Signed in as ${account.user.name}.`);
-      const destination =
-        next && next.startsWith("/")
-          ? next
-          : account.user.role === "admin"
-            ? "/admin"
+      const home =
+        account.user.role === "admin"
+          ? "/admin"
+          : account.user.role === "provider"
+            ? account.providerProfile
+              ? "/dashboard/provider"
+              : "/dashboard/team"
             : "/dashboard";
+      const destination = next && next.startsWith("/") ? next : home;
       navigate(destination, { replace: true });
     } catch (submitError) {
       setError(getApiMessage(submitError, "We could not sign you in."));

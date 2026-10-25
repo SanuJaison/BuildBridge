@@ -61,6 +61,11 @@ reverse proxy for `/api`, `/static`, and `/socket.io`).
 The login page includes one-click **Customer** and **Provider** demo accounts. Their password is
 `Demo@12345`.
 
+The seed also creates 1,150 bulk demo provider accounts (ten per subcategory, across freelancers,
+developers, companies, agencies, and studios) for exercising discovery and pagination at scale. They
+all use `Demo@12345` and the numbered pattern `provider0001@demo.buildbridge.dev` through
+`provider1150@demo.buildbridge.dev`. See the backend README for the full demo account list.
+
 Administrator credentials are intentionally documented only in the backend README and are never
 displayed in the public interface. Public registration can create customers and providers only.
 

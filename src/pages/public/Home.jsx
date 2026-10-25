@@ -217,7 +217,7 @@ function HeroVisual({ provider, project }) {
           <Star size={12} className="fill-amber-300 text-amber-300" />
           <span>
             <span className="font-semibold text-white">{dataOrDash(provider.ratingAvg)}</span> from{" "}
-            {provider.ratingCount || 0} reviews
+            {provider.ratingCount || 0} review{(provider.ratingCount || 0) === 1 ? "" : "s"}
           </span>
         </div>
       </div>
