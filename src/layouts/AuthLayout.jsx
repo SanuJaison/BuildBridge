@@ -70,12 +70,17 @@ export default function AuthLayout() {
 
           <div className="mt-10 flex items-center gap-4 rounded-xl border border-white/10 bg-white/[0.035] p-4 backdrop-blur-sm">
             <div className="flex -space-x-2.5">
-              {[1, 3, 5, 7].map((index) => (
+              {[
+                "/static/demo/photos/face-aria.jpg",
+                "/static/demo/photos/face-marcus.jpg",
+                "/static/demo/photos/face-priya.jpg",
+                "/static/demo/photos/person-maya.jpg",
+              ].map((src) => (
                 <img
-                  key={index}
-                  src={`/static/demo/avatar-${index}.svg`}
+                  key={src}
+                  src={src}
                   alt=""
-                  className="h-8 w-8 rounded-full border-2 border-ink-900 bg-ink-800"
+                  className="h-8 w-8 rounded-full border-2 border-ink-900 bg-ink-800 object-cover"
                 />
               ))}
             </div>

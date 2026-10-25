@@ -541,6 +541,33 @@ export default function StartProject() {
                   Open provider dashboard
                 </Link>
               </div>
+            ) : user?.role !== "customer" ? (
+              <div className="mt-8 rounded-2xl border border-brand-300/20 bg-brand-500/[0.05] p-6">
+                <div className="flex items-start gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-brand-300/20 bg-brand-500/10 text-brand-200">
+                    <Users size={17} />
+                  </span>
+                  <div>
+                    <h2 className="text-sm font-semibold text-white">Briefs are sent from customer accounts</h2>
+                    <p className="mt-1.5 max-w-lg text-xs leading-relaxed text-slate-400">
+                      You are signed in with a {user?.role === "admin" ? "platform administrator" : "provider"} account.
+                      Provider workspaces manage incoming inquiries. To commission work, sign in with a customer account,
+                      or create one for your buying side.
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-2.5">
+                      <Link
+                        to={user?.role === "admin" ? "/admin" : "/dashboard/provider"}
+                        className={buttonClass("secondary", "md")}
+                      >
+                        {user?.role === "admin" ? "Open admin dashboard" : "Open provider workspace"}
+                      </Link>
+                      <Link to="/register?role=customer" className={buttonClass("ghost", "md")}>
+                        Create a customer account
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ) : (
               <form onSubmit={submit} className="mt-8 space-y-6">
                 {submitError ? <FormError>{submitError}</FormError> : null}

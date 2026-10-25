@@ -1,6 +1,6 @@
 # BuildBridge Delivery Checklist
 
-Last updated: 2026-10-24
+Last updated: 2026-10-25
 
 This checklist tracks the website milestone. The Expo mobile application is intentionally last and
 has not been started.
@@ -16,6 +16,7 @@ has not been started.
 - [x] Categories are database-driven and fully editable by administrators
 - [x] Customer, provider, organization, and admin account models
 - [x] Provider types: freelancer, developer, company, agency, studio
+- [x] 16 professional roles with primary-role selection and discovery filtering
 - [x] JWT authentication with HttpOnly cookie and Bearer token support
 - [x] bcrypt password hashing
 - [x] Helmet, CORS allowlisting, JSON limits, and route-specific rate limiting
@@ -26,10 +27,12 @@ has not been started.
 
 ## Public website
 
-- [x] Premium dark navy/charcoal and purple-blue visual system
+- [x] Premium dark navy/charcoal and purple-blue visual system with layered photography
 - [x] Responsive homepage with hero, categories, featured providers, services, portfolio, and trust sections
-- [x] GSAP homepage motion with reduced-motion support
-- [x] Provider directory with search, filters, sorting, and pagination
+- [x] GSAP page reveals, scroll parallax, pointer tilt, magnet controls, custom cursor, and route motion
+- [x] Reduced-motion behavior keeps all content visible without animation
+- [x] Live command-palette search across providers, services, projects, categories, and roles
+- [x] Provider directory with search, role filters, sorting, and pagination
 - [x] Provider profiles with services, portfolio, reviews, rating breakdown, and inquiry entry
 - [x] Service directory and service detail pages
 - [x] Portfolio directory and project detail pages
@@ -37,12 +40,13 @@ has not been started.
 - [x] Start-project inquiry flow
 - [x] How it works, about, trust, contact, terms, privacy, and 404 pages
 - [x] Safe image fallbacks for missing assets
-- [x] Clear demo-data notices and fictional seeded content
+- [x] Curated demo photography across profiles, services, projects, categories, and auth pages
+- [x] Clear demo-data notices, fictional seeded content, and documented Unsplash licensing
 
 ## Authentication and accounts
 
 - [x] Customer and provider registration
-- [x] Provider onboarding type selection and organization creation
+- [x] Provider onboarding type selection, up to three role choices, and organization creation
 - [x] Team invitation acceptance flow for provider accounts
 - [x] Login, logout, session restoration, and protected routes
 - [x] Forgot-password and reset-password flows
@@ -64,8 +68,9 @@ has not been started.
 ## Provider workspace
 
 - [x] Provider overview and onboarding guidance
-- [x] Public profile editor
-- [x] Publish guard requiring display name, headline, bio, category, skills, and location
+- [x] Primary-role lens with tailored focus areas, badges, and discovery links
+- [x] Public profile editor with role selection and primary-role control
+- [x] Publish guard requiring display name, a professional role, headline, bio, category, skills, and location
 - [x] Service create, edit, publish/pause, and delete
 - [x] Portfolio create, edit, publish/draft, and delete
 - [x] Organization and team member management
@@ -93,11 +98,13 @@ has not been started.
 - [x] Inquiry lifecycle enforced: `new → in_discussion → proposal_sent → accepted → completed`
       plus declined and cancelled outcomes
 - [x] Only the receiving provider can send proposals
+- [x] Only customer accounts can create buying-side inquiries
 - [x] Only the customer can accept, decline, or complete
 - [x] Reviews require a completed engagement and are limited to one per inquiry
 - [x] Ownership checks block access to other customers' and providers' records
 - [x] Private attachments restricted to the owner, admins, and linked inquiry participants
 - [x] Upload MIME type, size, and purpose validation
+- [x] Multer memory uploads, Cloudinary delivery, and local fallback configuration
 - [x] Public signup cannot create an administrator
 - [x] Admin user-management guards verified
 - [x] Admin review moderation recalculates ratings
@@ -107,27 +114,32 @@ has not been started.
 ## Automated verification
 
 - [x] Backend integration suite added with Node's test runner and Supertest
-- [x] 15 integration tests passing against a dedicated `_test` database
+- [x] 16 integration tests passing against a dedicated `_test` database
 - [x] Test database safety check (`_test` suffix) and drop before/after runs
-- [x] Tests cover auth, admin safety, inquiry/proposal transitions, reviews, ownership,
-      partial-update regressions, uploads, contact messages, settings, and provider suspension
+- [x] Tests cover auth, admin safety, customer-only inquiry creation, inquiry/proposal transitions,
+      reviews, ownership, partial-update regressions, uploads, contact messages, settings, and
+      provider suspension
 - [x] Frontend ESLint passes
 - [x] Frontend production build passes
+- [x] All public pages and dynamic provider, service, project, and category detail pages browser-audited
+- [x] Customer, provider, and all nine admin routes browser-audited without application crashes
+- [x] Global search and role-filtered discovery exercised in the browser
 - [x] Admin write flows exercised in the browser and demo state restored after moderation tests
 
 ## Documentation
 
-- [x] Backend README with setup, environment, API overview, security, tests, and limitations
-- [x] Frontend README with setup, routes, experience map, verification status, and limitations
-- [x] Backend `.env.example` with placeholder values only
+- [x] Backend README with setup, environment, Cloudinary uploads, API overview, security, tests, and limitations
+- [x] Frontend README with setup, routes, role/motion/search behavior, verification status, and limitations
+- [x] Backend `.env.example` with placeholder values only and Cloudinary driver options
 - [x] Demo credentials documented in READMEs only, never in the public UI
+- [x] Demo photography provenance and fictional-content disclaimer documented
 - [x] Known limitations and deliberately excluded features documented
 
 ## Deliberately out of scope for the website milestone
 
 - [ ] Payment processing, escrow, invoicing, and checkout (no fake payments are shown)
 - [ ] Transactional email or SMS delivery (development reset token only)
-- [ ] Cloud object storage for uploads (local disk in the current setup)
+- [x] Cloud object storage adapter for uploads (Cloudinary with local fallback)
 - [ ] Frontend unit tests and browser E2E automation
 - [ ] Route-level code splitting to remove the Vite large-chunk warning
 - [ ] Distributed rate limiting and Socket.IO adapter for horizontal scaling
@@ -152,4 +164,5 @@ has not been started.
 - [x] Demo credentials are absent from public UI
 - [x] No `.env`, secrets, or upload test artifacts are committed
 - [x] README setup instructions match the current scripts and environment variables
+- [ ] Replace the local development Cloudinary secret with the matching console value before production
 - [ ] Mobile milestone started only after the website is accepted

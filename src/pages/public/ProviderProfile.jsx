@@ -35,6 +35,7 @@ import ServiceCard from "../../components/public/ServiceCard";
 import ProjectCard from "../../components/public/ProjectCard";
 import SectionHeader from "../../components/public/SectionHeader";
 import { PROVIDER_TYPE_LABELS, formatDate, money } from "../../lib/format";
+import { roleMeta } from "../../lib/providerRoles";
 
 function ratingLabel(value) {
   const numeric = Number(value) || 0;
@@ -71,6 +72,7 @@ export default function ProviderProfile() {
   }, [load]);
 
   const provider = state.data?.provider;
+  const providerRoles = (provider?.roles || []).map(roleMeta).filter(Boolean);
   usePageTitle(provider ? `${provider.displayName} · ${PROVIDER_TYPE_LABELS[provider.type] || "Talent"}` : "Provider profile");
 
   const isOwnProfile = Boolean(provider && user && String(provider.user) === String(user._id));
@@ -193,6 +195,25 @@ export default function ProviderProfile() {
                   <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-slate-400">
                     {provider.headline || provider.primaryCategory?.name || "Digital specialist"}
                   </p>
+                  {providerRoles.length ? (
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {providerRoles.map((role) => {
+                        const Icon = role.icon;
+                        return (
+                          <span
+                            key={role.value}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.035] px-2.5 py-1 text-[10px] font-medium text-slate-300"
+                          >
+                            <Icon size={11} className="text-brand-300" />
+                            {role.label}
+                            {role.value === provider.primaryRole ? (
+                              <span className="text-[8px] uppercase tracking-wider text-slate-600">primary</span>
+                            ) : null}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  ) : null}
                   <div className="mt-3.5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-slate-500">
                     <span className="inline-flex items-center gap-1.5">
                       <MapPin size={12} />
@@ -510,10 +531,21 @@ export default function ProviderProfile() {
                 {provider.organization ? (
                   <div className="mt-4 border-t border-white/[0.07] pt-4">
                     <p className="text-[10px] text-slate-500">Part of</p>
-                    <p className="mt-0.5 text-[11px] font-medium text-slate-200">{provider.organization.name}</p>
-                    {provider.organization.location ? (
-                      <p className="mt-0.5 text-[10px] text-slate-500">{provider.organization.location}</p>
-                    ) : null}
+                    <div className="mt-2 flex items-center gap-2.5">
+                      {provider.organization.logo ? (
+                        <img
+                          src={provider.organization.logo}
+                          alt=""
+                          className="h-8 w-8 shrink-0 rounded-lg border border-white/10 object-cover"
+                        />
+                      ) : null}
+                      <div className="min-w-0">
+                        <p className="truncate text-[11px] font-medium text-slate-200">{provider.organization.name}</p>
+                        {provider.organization.location ? (
+                          <p className="mt-0.5 truncate text-[10px] text-slate-500">{provider.organization.location}</p>
+                        ) : null}
+                      </div>
+                    </div>
                   </div>
                 ) : null}
 

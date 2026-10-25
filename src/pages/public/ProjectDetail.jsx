@@ -75,7 +75,8 @@ export default function ProjectDetail() {
     );
   }
 
-  const { provider, related = [], providerProjects = [] } = state.data;
+  const { related = [], providerProjects = [] } = state.data;
+  const provider = project.provider || {};
   const images = project.images?.length ? project.images : [];
   const inquiryHref = `/start-project?provider=${provider.slug}`;
   const projectDetails = [

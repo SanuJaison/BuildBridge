@@ -19,6 +19,7 @@ export default function ServiceCard({ service, horizontal = false }) {
         to={`/services/${service.slug}`}
         className="absolute inset-0 z-10"
         aria-label={`View service ${service.title}`}
+        data-cursor-label="View service"
       />
       <div className={`relative shrink-0 overflow-hidden ${horizontal ? "sm:w-56" : ""}`}>
         <Artwork

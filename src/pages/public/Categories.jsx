@@ -5,6 +5,7 @@ import api, { getApiMessage } from "../../lib/api";
 import usePageTitle from "../../hooks/usePageTitle";
 import PageHero from "../../components/public/PageHero";
 import CategoryIcon from "../../components/public/CategoryIcon";
+import { categoryVisual } from "../../lib/categoryVisuals";
 import { Input } from "../../components/ui/Form";
 import { ErrorState, LoadingBlock } from "../../components/ui/Feedback";
 import { buttonClass } from "../../components/ui/Button";
@@ -103,7 +104,23 @@ export default function Categories() {
                 className="group surface relative overflow-hidden rounded-2xl p-5 transition hover:border-brand-300/25 sm:p-6"
               >
                 <div className="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-brand-500/[0.06] blur-3xl transition group-hover:bg-brand-500/[0.1]" />
-                <div className="relative grid gap-6 lg:grid-cols-[0.9fr_1.5fr]">
+                <div className="relative grid gap-6 lg:grid-cols-[210px_0.9fr_1.5fr] lg:items-start">
+                  <Link
+                    to={`/categories/${category.slug}`}
+                    className="group/image relative aspect-[16/10] overflow-hidden rounded-xl border border-white/[0.08]"
+                    data-cursor-label="Open category"
+                  >
+                    <img
+                      src={categoryVisual(category.slug)}
+                      alt=""
+                      loading="lazy"
+                      className="h-full w-full object-cover opacity-80 transition duration-700 group-hover/image:scale-105 group-hover/image:opacity-100"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-ink-950/85 via-transparent to-transparent" />
+                    <span className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-ink-950/60 text-brand-200 backdrop-blur">
+                      <CategoryIcon name={category.icon} size={15} />
+                    </span>
+                  </Link>
                   <div>
                     <div className="flex items-center gap-3">
                       <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br from-white/[0.09] to-white/[0.02] text-brand-200">

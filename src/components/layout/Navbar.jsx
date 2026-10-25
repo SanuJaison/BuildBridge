@@ -16,7 +16,7 @@ const LINKS = [
 ];
 
 export default function Navbar() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, providerProfile } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const location = useLocation();
@@ -43,6 +43,8 @@ export default function Navbar() {
   }, [open]);
 
   const solid = scrolled || !isHome;
+  const dashboardPath =
+    user?.role === "admin" ? "/admin" : user?.role === "provider" && providerProfile ? "/dashboard/provider" : "/dashboard";
 
   return (
     <>
@@ -67,18 +69,22 @@ export default function Navbar() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <Link
-              to="/services"
-              className="hidden h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-slate-400 transition hover:border-white/20 hover:text-white sm:inline-flex"
-              aria-label="Search services"
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent("bb:open-search"))}
+              className="hidden h-9 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 text-slate-400 transition hover:border-white/20 hover:text-white sm:inline-flex"
+              aria-label="Search BuildBridge (Ctrl or Command + K)"
             >
               <Search size={15} />
-            </Link>
+              <span className="hidden items-center gap-0.5 rounded border border-white/10 px-1 py-0.5 text-[9px] text-slate-500 lg:inline-flex">
+                ⌘K
+              </span>
+            </button>
 
             {isAuthenticated ? (
               <>
                 <NotificationBell />
-                <Link to={user.role === "admin" ? "/admin" : "/dashboard"} className={buttonClass("secondary", "sm", "hidden sm:inline-flex")}>
+                <Link to={dashboardPath} className={buttonClass("secondary", "sm", "hidden sm:inline-flex")}>
                   Dashboard
                 </Link>
                 <AccountMenu />
@@ -145,9 +151,20 @@ export default function Navbar() {
               ))}
             </nav>
             <div className="mt-7 flex flex-col gap-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  window.dispatchEvent(new CustomEvent("bb:open-search"));
+                }}
+                className={buttonClass("secondary", "lg", "w-full")}
+              >
+                <Search size={15} />
+                Search BuildBridge
+              </button>
               {isAuthenticated ? (
                 <>
-                  <Link to={user.role === "admin" ? "/admin" : "/dashboard"} className={buttonClass("primary", "lg", "w-full")}>
+                  <Link to={dashboardPath} className={buttonClass("primary", "lg", "w-full")}>
                     Go to dashboard
                   </Link>
                   <Link to="/dashboard/settings" className={buttonClass("secondary", "lg", "w-full")}>

@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -29,10 +28,10 @@ import ReviewCard from "../../components/public/ReviewCard";
 import Accordion from "../../components/public/Accordion";
 import { Avatar, Artwork } from "../../components/ui/Avatar";
 import { Badge, Rating } from "../../components/ui/Badge";
+import { PROVIDER_ROLES } from "../../lib/providerRoles";
+import { categoryVisual } from "../../lib/categoryVisuals";
 import Button, { buttonClass } from "../../components/ui/Button";
 import { ErrorState, LoadingBlock } from "../../components/ui/Feedback";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const TALENT_TABS = [
   { key: "all", label: "All talent" },
@@ -111,7 +110,7 @@ function HeroVisual({ provider, project }) {
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[0.04]" />
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-600/15 blur-[80px]" />
 
-      <div className="hero-visual relative z-10">
+      <div className="hero-visual relative z-10" data-tilt="4">
         <div className="rotate-[-1.5deg]">
           <div className="hero-float card-sheen overflow-hidden rounded-[26px] border border-white/12 bg-ink-850/95 shadow-[0_40px_120px_-40px_rgba(0,0,0,0.9)] backdrop-blur">
             <div className="relative h-44 overflow-hidden">
@@ -292,17 +291,6 @@ export default function Home() {
           yoyo: true,
           ease: "sine.inOut",
         });
-
-        ScrollTrigger.batch("[data-reveal]", {
-          start: "top 88%",
-          once: true,
-          onEnter: (batch) =>
-            gsap.fromTo(
-              batch,
-              { opacity: 0, y: 26 },
-              { opacity: 1, y: 0, duration: 0.7, stagger: 0.075, ease: "power2.out", overwrite: true }
-            ),
-        });
       });
       return () => mm.revert();
     }, landingRef);
@@ -397,14 +385,13 @@ export default function Home() {
 
               <div className="hero-proof mt-9 flex items-center gap-3">
                 <div className="flex -space-x-2.5">
-                  {["aria", "marcus", "priya", "tomas"].map((key, index) => (
-                    <Avatar
-                      key={key}
-                      src={`/static/demo/avatar-${index + 1}.svg`}
-                      name={key}
-                      size="sm"
-                      className="border-2 border-ink-950"
-                    />
+                  {[
+                    ["Aria Chen", "/static/demo/photos/face-aria.jpg"],
+                    ["Marcus Reed", "/static/demo/photos/face-marcus.jpg"],
+                    ["Priya Nair", "/static/demo/photos/face-priya.jpg"],
+                    ["Maya Okafor", "/static/demo/photos/person-maya.jpg"],
+                  ].map(([name, src]) => (
+                    <Avatar key={name} src={src} name={name} size="sm" className="border-2 border-ink-950" />
                   ))}
                 </div>
                 <p className="max-w-[230px] text-[11px] leading-relaxed text-slate-500">
@@ -486,6 +473,13 @@ export default function Home() {
                         large ? "sm:col-span-2 lg:col-span-3" : "lg:col-span-2"
                       }`}
                     >
+                      <img
+                        src={categoryVisual(category.slug)}
+                        alt=""
+                        loading="lazy"
+                        className="absolute inset-0 h-full w-full object-cover opacity-[0.14] transition duration-700 group-hover:scale-[1.04] group-hover:opacity-[0.22]"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/80 to-ink-950/40" />
                       <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-brand-500/[0.07] blur-2xl transition group-hover:bg-brand-500/[0.12]" />
                       <div className="relative flex h-full flex-col">
                         <div className="flex items-start justify-between">
@@ -527,6 +521,81 @@ export default function Home() {
                     </Link>
                   );
                 })}
+              </div>
+            </div>
+          </section>
+
+          <section className="relative overflow-hidden border-t border-white/[0.06] bg-ink-900/40 py-20 lg:py-28">
+            <div className="pointer-events-none absolute inset-0">
+              <div className="absolute left-1/2 top-0 h-[420px] w-[900px] -translate-x-1/2 rounded-full bg-brand-500/[0.07] blur-[130px]" />
+              <span className="text-stroke absolute -right-8 top-8 select-none text-[clamp(6rem,15vw,14rem)] font-semibold leading-none tracking-tighter">
+                TALENT
+              </span>
+            </div>
+            <div className="container-page relative">
+              <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
+                <div data-reveal>
+                  <p className="eyebrow">Find your lane</p>
+                  <h2 className="heading-lg mt-3 text-white">
+                    Not one kind of <span className="serif-accent text-brand-200">builder.</span>
+                  </h2>
+                  <p className="mt-5 max-w-md text-sm leading-relaxed text-slate-400">
+                    A game studio is not a growth team, and a mobile engineer is not a brand designer. Pick the role
+                    that matches the work, then compare the people behind it. Every provider chooses their own roles
+                    and gets a workspace shaped around them.
+                  </p>
+                  <Link
+                    to="/providers"
+                    data-magnetic
+                    className={buttonClass("secondary", "md", "mt-7")}
+                  >
+                    Browse every specialist
+                    <ArrowUpRight size={14} />
+                  </Link>
+                  <div className="mt-9 grid max-w-md grid-cols-3 gap-3">
+                    {[
+                      { value: "16", label: "Professional roles" },
+                      { value: "11", label: "Disciplines" },
+                      { value: "4", label: "Account types" },
+                    ].map((item) => (
+                      <div key={item.label} className="rounded-xl border border-white/8 bg-white/[0.025] px-3.5 py-3">
+                        <p className="font-serif text-2xl italic text-brand-200">{item.value}</p>
+                        <p className="mt-0.5 text-[10px] leading-snug text-slate-500">{item.label}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div data-reveal className="grid gap-x-8 sm:grid-cols-2">
+                  {PROVIDER_ROLES.map((role, index) => {
+                    const Icon = role.icon;
+                    return (
+                      <Link
+                        key={role.value}
+                        to={`/providers?role=${role.value}`}
+                        data-cursor-label="Explore"
+                        className="group flex items-center gap-3 border-b border-white/[0.07] py-3.5 transition hover:border-brand-300/25"
+                      >
+                        <span className="w-5 shrink-0 text-[9px] tabular-nums text-slate-700">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/8 bg-white/[0.025] text-slate-500 transition group-hover:border-brand-300/30 group-hover:bg-brand-500/10 group-hover:text-brand-200">
+                          <Icon size={14} />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-[12px] font-medium text-slate-200 transition group-hover:text-white">
+                            {role.label}
+                          </span>
+                          <span className="mt-0.5 block truncate text-[10px] text-slate-600">{role.short}</span>
+                        </span>
+                        <ArrowUpRight
+                          size={12}
+                          className="shrink-0 text-slate-700 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brand-300"
+                        />
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </section>

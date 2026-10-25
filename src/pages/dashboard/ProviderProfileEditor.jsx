@@ -12,7 +12,9 @@ import { Checkbox, Field, FormError, Input, Select, TagInput, TextArea } from ".
 import { ImageUploader } from "../../components/ui/Uploader";
 import { ErrorState, LoadingBlock } from "../../components/ui/Feedback";
 import { PageHeader, Panel } from "../../components/dashboard/DashboardUI";
+import RolePicker from "../../components/provider/RolePicker";
 import { PROVIDER_TYPE_LABELS } from "../../lib/format";
+import { roleMeta } from "../../lib/providerRoles";
 
 const AVAILABILITY_OPTIONS = [
   { value: "available", label: "Available now" },
@@ -23,6 +25,8 @@ const AVAILABILITY_OPTIONS = [
 function toForm(provider) {
   return {
     displayName: provider.displayName || "",
+    roles: provider.roles || [],
+    primaryRole: provider.primaryRole || "",
     headline: provider.headline || "",
     bio: provider.bio || "",
     avatar: provider.avatar || "",
@@ -53,6 +57,8 @@ function toForm(provider) {
 function payloadFrom(form) {
   return {
     displayName: form.displayName.trim(),
+    roles: form.roles,
+    primaryRole: form.primaryRole || "",
     headline: form.headline.trim(),
     bio: form.bio.trim(),
     avatar: form.avatar,
@@ -81,6 +87,7 @@ function payloadFrom(form) {
 function readiness(form) {
   return [
     { label: "Display name", done: form.displayName.trim().length >= 2 },
+    { label: "At least one professional role", done: form.roles.length > 0 },
     { label: "Professional headline (8+ characters)", done: form.headline.trim().length >= 8 },
     { label: "Biography of at least 80 characters", done: form.bio.trim().length >= 80 },
     { label: "Primary category", done: Boolean(form.primaryCategory) },
@@ -346,6 +353,29 @@ export default function ProviderProfileEditor() {
                     <p className="mt-1 text-right text-[10px] text-slate-600">{form.bio.length}/4000</p>
                   </Field>
                 </div>
+              </Panel>
+
+              <Panel title="Professional roles" description="Your roles shape how customers find you and how your workspace is organised.">
+                <RolePicker
+                  value={form.roles}
+                  primary={form.primaryRole}
+                  onChange={(roles) => {
+                    const suggested = roleMeta(roles[roles.length - 1])?.categorySlug;
+                    const suggestedCategory = suggested
+                      ? tree.find((category) => category.slug === suggested)
+                      : null;
+                    setForm((current) => ({
+                      ...current,
+                      roles,
+                      primaryRole: roles.includes(current.primaryRole) ? current.primaryRole : roles[0] || "",
+                      primaryCategory:
+                        current.primaryCategory || !suggestedCategory ? current.primaryCategory : suggestedCategory.id,
+                    }));
+                    setSaved("");
+                  }}
+                  onPrimaryChange={(role) => patch({ primaryRole: role })}
+                  max={3}
+                />
               </Panel>
 
               <Panel title="Expertise" description="Help customers understand where your strengths fit.">

@@ -7,6 +7,7 @@ import { getApiMessage, getFieldErrors } from "../../lib/api";
 import usePageTitle from "../../hooks/usePageTitle";
 import Button from "../../components/ui/Button";
 import { Checkbox, Field, FormError, Input, PasswordInput } from "../../components/ui/Form";
+import RolePicker from "../../components/provider/RolePicker";
 
 const PROVIDER_TYPES = [
   {
@@ -57,6 +58,8 @@ export default function Register() {
     password: "",
     confirmPassword: "",
     providerType: "freelancer",
+    roles: [],
+    primaryRole: "",
     companyName: "",
   });
   const [joinTeam, setJoinTeam] = useState(false);
@@ -84,6 +87,9 @@ export default function Register() {
     if (form.password.length < 8) localErrors.password = "Use at least 8 characters.";
     if (form.password !== form.confirmPassword) localErrors.confirmPassword = "The passwords do not match.";
     if (isOrganization && !form.companyName.trim()) localErrors.companyName = "Enter your organization name.";
+    if (role === "provider" && !joinTeam && form.roles.length === 0) {
+      localErrors.roles = "Choose at least one professional role.";
+    }
     if (!accepted) localErrors.terms = "Please accept the terms and privacy policy to continue.";
     if (Object.keys(localErrors).length) {
       setFieldErrors(localErrors);
@@ -100,7 +106,7 @@ export default function Register() {
         ...(role === "provider"
           ? joinTeam
             ? { joinTeam: true }
-            : { providerType: form.providerType }
+            : { providerType: form.providerType, roles: form.roles, primaryRole: form.primaryRole || form.roles[0] }
           : {}),
         ...(isOrganization ? { companyName: form.companyName.trim() } : {}),
       };
@@ -217,6 +223,33 @@ export default function Register() {
                   ))}
                 </div>
                 {fieldErrors.providerType ? <p className="mt-1.5 text-xs text-rose-400">{fieldErrors.providerType}</p> : null}
+
+                <div className="mt-5">
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <span className="label-base mb-0">What do you do?</span>
+                    <span className="text-[10px] text-slate-600">Pick up to 3</span>
+                  </div>
+                  <div className="max-h-[19rem] overflow-y-auto rounded-xl border border-white/[0.07] bg-white/[0.015] p-2">
+                    <RolePicker
+                      value={form.roles}
+                      primary={form.primaryRole}
+                      onChange={(roles) => {
+                        setForm((current) => ({
+                          ...current,
+                          roles,
+                          primaryRole: roles.includes(current.primaryRole) ? current.primaryRole : roles[0] || "",
+                        }));
+                        setFieldErrors((current) => ({ ...current, roles: undefined }));
+                      }}
+                      onPrimaryChange={(role) =>
+                        setForm((current) => ({ ...current, primaryRole: role }))
+                      }
+                      max={3}
+                      columns="grid-cols-1"
+                    />
+                  </div>
+                  {fieldErrors.roles ? <p className="mt-1.5 text-xs text-rose-400">{fieldErrors.roles}</p> : null}
+                </div>
               </>
             )}
           </div>

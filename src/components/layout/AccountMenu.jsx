@@ -7,7 +7,7 @@ import { Avatar } from "../ui/Avatar";
 import { humanize } from "../../lib/format";
 
 export default function AccountMenu({ compact = false }) {
-  const { user, logout } = useAuth();
+  const { user, providerProfile, logout } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
   const [open, setOpen] = useState(false);
@@ -32,8 +32,9 @@ export default function AccountMenu({ compact = false }) {
 
   if (!user) return null;
 
-  const dashboardPath = user.role === "admin" ? "/admin" : "/dashboard";
-  const dashboardLabel = user.role === "admin" ? "Admin console" : "Dashboard";
+  const dashboardPath =
+    user.role === "admin" ? "/admin" : user.role === "provider" && providerProfile ? "/dashboard/provider" : "/dashboard";
+  const dashboardLabel = user.role === "admin" ? "Admin console" : user.role === "provider" ? "Provider workspace" : "Dashboard";
 
   const handleLogout = async () => {
     setLeaving(true);

@@ -22,7 +22,9 @@ import { Badge, Rating, StatusBadge } from "../../components/ui/Badge";
 import { buttonClass } from "../../components/ui/Button";
 import { EmptyState, ErrorState, LoadingBlock } from "../../components/ui/Feedback";
 import { PageHeader, Panel, SetupStep, StatCard } from "../../components/dashboard/DashboardUI";
+import { RoleBadge } from "../../components/provider/RolePicker";
 import { INQUIRY_STATUS, timeAgo } from "../../lib/format";
+import { ROLE_TONES, roleMeta } from "../../lib/providerRoles";
 
 function profileReadiness(profile) {
   return [
@@ -30,6 +32,11 @@ function profileReadiness(profile) {
       key: "name",
       label: "Add your display name",
       done: Boolean(profile?.displayName && profile.displayName.trim().length >= 2),
+    },
+    {
+      key: "roles",
+      label: "Choose at least one professional role",
+      done: Boolean(profile?.roles?.length),
     },
     {
       key: "headline",
@@ -100,6 +107,9 @@ export default function ProviderOverview() {
   const readiness = profileReadiness(profile);
   const publishReady = readiness.every((item) => item.done);
   const displayName = profile?.displayName || providerProfile?.displayName || "your workspace";
+  const primaryRole = roleMeta(profile?.primaryRole) || roleMeta(profile?.roles?.[0]);
+  const roleTone = primaryRole ? ROLE_TONES[primaryRole.value] : "from-brand-500/15 to-sky-500/5";
+  const RoleIcon = primaryRole?.icon;
   const setupSteps = [
     {
       done: publishReady,
@@ -144,9 +154,13 @@ export default function ProviderOverview() {
   return (
     <div>
       <PageHeader
-        eyebrow="Provider workspace"
+        eyebrow={primaryRole ? `${primaryRole.label} workspace` : "Provider workspace"}
         title={`Welcome, ${displayName}`}
-        description="Manage your storefront, respond to demand, and keep your services sharp."
+        description={
+          primaryRole
+            ? primaryRole.blurb
+            : "Choose your professional roles to tailor this workspace, then manage your storefront and respond to demand."
+        }
         actions={
           <>
             {provider.status === "published" && profile?.slug ? (
@@ -198,6 +212,62 @@ export default function ProviderOverview() {
           )}
         </div>
       ) : null}
+
+      {primaryRole ? (
+        <div className={`relative mb-5 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br ${roleTone}`}>
+          <div className="pointer-events-none absolute -right-12 -top-16 h-48 w-48 rounded-full bg-white/[0.06] blur-3xl" />
+          <div className="relative flex flex-col gap-5 p-5 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-start gap-4">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-ink-950/45 text-brand-100 backdrop-blur">
+                {RoleIcon ? <RoleIcon size={21} /> : null}
+              </span>
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/55">Your role lens</p>
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  <h2 className="text-lg font-semibold tracking-tight text-white">{primaryRole.label}</h2>
+                  {(profile?.roles || []).slice(1).map((role) => (
+                    <RoleBadge key={role} value={role} />
+                  ))}
+                </div>
+                <div className="mt-2.5 flex flex-wrap gap-1.5">
+                  {primaryRole.focus.map((item) => (
+                    <span key={item} className="rounded-full border border-white/10 bg-ink-950/30 px-2.5 py-1 text-[10px] text-white/70">
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                to={`/providers?role=${primaryRole.value}`}
+                className="rounded-xl border border-white/12 bg-ink-950/35 px-3 py-2 text-[11px] font-medium text-white/80 transition hover:border-white/25 hover:text-white"
+              >
+                Browse {primaryRole.label.toLowerCase()}s
+              </Link>
+              <Link
+                to="/dashboard/provider/profile"
+                className="rounded-xl border border-white/12 bg-ink-950/35 px-3 py-2 text-[11px] font-medium text-white/80 transition hover:border-white/25 hover:text-white"
+              >
+                Refine role setup
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <Link
+          to="/dashboard/provider/profile"
+          className="mb-5 flex items-center justify-between gap-4 rounded-2xl border border-brand-400/25 bg-brand-500/[0.07] px-4 py-3.5 transition hover:border-brand-300/40 hover:bg-brand-500/[0.1]"
+        >
+          <div>
+            <p className="text-sm font-semibold text-brand-100">Make this workspace yours</p>
+            <p className="mt-0.5 text-[11px] text-brand-100/60">
+              Choose your professional roles to unlock a tailored dashboard and better marketplace discovery.
+            </p>
+          </div>
+          <Plus size={16} className="shrink-0 text-brand-200" />
+        </Link>
+      )}
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
@@ -361,6 +431,42 @@ export default function ProviderOverview() {
               ))}
             </div>
           </Panel>
+
+          {primaryRole ? (
+            <Panel
+              title={`${primaryRole.label} playbook`}
+              description="Role-specific prompts to sharpen your next offer."
+            >
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-slate-600">Service ideas</p>
+                <ul className="mt-2 space-y-1.5">
+                  {primaryRole.serviceIdeas.map((idea) => (
+                    <li key={idea} className="flex items-start gap-2 text-[11px] leading-relaxed text-slate-400">
+                      <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-300" />
+                      {idea}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="mt-4 border-t border-white/[0.07] pt-3.5">
+                <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-slate-600">Portfolio proof</p>
+                <ul className="mt-2 space-y-1.5">
+                  {primaryRole.portfolioIdeas.map((idea) => (
+                    <li key={idea} className="flex items-start gap-2 text-[11px] leading-relaxed text-slate-400">
+                      <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-mint-400" />
+                      {idea}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <Link
+                to="/dashboard/provider/services"
+                className="mt-4 inline-flex items-center gap-1.5 text-[11px] font-medium text-brand-300 transition hover:text-brand-200"
+              >
+                Turn an idea into a service <ArrowRight size={11} />
+              </Link>
+            </Panel>
+          ) : null}
 
           <div className="surface rounded-2xl p-4">
             <p className="flex items-center gap-2 text-xs font-semibold text-white">

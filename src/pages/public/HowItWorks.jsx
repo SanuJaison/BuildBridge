@@ -247,7 +247,7 @@ export default function HowItWorks() {
             </div>
             <div className="mt-8 overflow-hidden rounded-2xl border border-white/[0.08]">
               <img
-                src="/static/demo/work-4.svg"
+                src="/static/demo/photos/dev-collab.jpg"
                 alt=""
                 className="h-44 w-full object-cover opacity-80"
                 onError={(event) => {

@@ -4,6 +4,7 @@ import { Avatar, Artwork } from "../ui/Avatar";
 import { Rating } from "../ui/Badge";
 import FavoriteButton from "./FavoriteButton";
 import { PROVIDER_TYPE_LABELS, money } from "../../lib/format";
+import { roleMeta } from "../../lib/providerRoles";
 
 export default function ProviderCard({ provider }) {
   if (!provider) return null;
@@ -13,10 +14,18 @@ export default function ProviderCard({ provider }) {
       : provider.startingBudget
         ? `From ${money(provider.startingBudget, provider.currency)}`
         : "Let's talk";
+  const primaryRole = roleMeta(provider.primaryRole) || roleMeta(provider.roles?.[0]);
+  const RoleIcon = primaryRole?.icon;
+  const extraRoles = (provider.roles || []).filter((role) => role !== primaryRole?.value);
 
   return (
     <article className="surface surface-hover group relative flex h-full flex-col overflow-hidden rounded-2xl">
-      <Link to={`/providers/${provider.slug}`} className="absolute inset-0 z-10" aria-label={`View ${provider.displayName}`} />
+      <Link
+        to={`/providers/${provider.slug}`}
+        className="absolute inset-0 z-10"
+        aria-label={`View ${provider.displayName}`}
+        data-cursor-label="View profile"
+      />
 
       <div className="relative h-24 shrink-0">
         <Artwork
@@ -28,8 +37,9 @@ export default function ProviderCard({ provider }) {
           className="absolute inset-0 h-full w-full"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink-900/85 via-ink-900/20 to-transparent" />
-        <span className="absolute left-4 top-4 rounded-full border border-white/15 bg-ink-950/50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/80 backdrop-blur">
-          {PROVIDER_TYPE_LABELS[provider.type] || provider.type}
+        <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-ink-950/55 px-2.5 py-1 text-[10px] font-semibold text-white/85 backdrop-blur">
+          {RoleIcon ? <RoleIcon size={11} className="text-brand-200" /> : null}
+          {primaryRole?.label || PROVIDER_TYPE_LABELS[provider.type] || provider.type}
         </span>
         <div className="absolute right-4 top-4">
           <FavoriteButton providerId={provider._id} />
@@ -56,7 +66,14 @@ export default function ProviderCard({ provider }) {
               {skill}
             </span>
           ))}
+          {!provider.skills?.length && extraRoles.length ? (
+            <span className="chip px-2 py-1 text-[10px]">{roleMeta(extraRoles[0])?.label}</span>
+          ) : null}
         </div>
+        <p className="mt-2 text-[9px] font-medium uppercase tracking-[0.13em] text-slate-600">
+          {PROVIDER_TYPE_LABELS[provider.type] || provider.type}
+          {extraRoles.length ? ` · +${extraRoles.length} more role${extraRoles.length === 1 ? "" : "s"}` : ""}
+        </p>
 
         <div className="mt-auto flex items-center justify-between gap-2 border-t border-white/[0.07] pt-3.5 text-[11px]">
           <span className="flex min-w-0 items-center gap-1 text-slate-500">

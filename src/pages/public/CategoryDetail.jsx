@@ -11,6 +11,7 @@ import ProjectCard from "../../components/public/ProjectCard";
 import SectionHeader from "../../components/public/SectionHeader";
 import { buttonClass } from "../../components/ui/Button";
 import { ErrorState, LoadingBlock } from "../../components/ui/Feedback";
+import { categoryVisual } from "../../lib/categoryVisuals";
 
 export default function CategoryDetail() {
   const { slug } = useParams();
@@ -95,7 +96,19 @@ export default function CategoryDetail() {
           { label: category.name },
         ]}
         aside={
-          <div className="surface rounded-2xl p-5">
+          <div className="surface overflow-hidden rounded-2xl p-5">
+            <Link
+              to={`/services?category=${category.slug}`}
+              className="group relative -mx-5 -mt-5 mb-5 block h-28 overflow-hidden border-b border-white/10"
+              data-cursor-label="View services"
+            >
+              <img
+                src={categoryVisual(category.slug)}
+                alt=""
+                className="h-full w-full object-cover opacity-80 transition duration-700 group-hover:scale-105 group-hover:opacity-100"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/30 to-transparent" />
+            </Link>
             <span className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br from-white/[0.1] to-white/[0.02] text-brand-200">
               <CategoryIcon name={category.icon} size={22} />
             </span>

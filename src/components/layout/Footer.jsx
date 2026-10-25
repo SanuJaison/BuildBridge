@@ -26,7 +26,7 @@ const COLUMNS = [
     title: "For talent",
     links: [
       { label: "Join as a provider", to: "/register?role=provider" },
-      { label: "Provider dashboard", to: "/dashboard" },
+      { label: "Provider dashboard", to: "/dashboard/provider" },
       { label: "Team workspaces", to: "/dashboard/team" },
       { label: "Community guidelines", to: "/trust#guidelines" },
     ],

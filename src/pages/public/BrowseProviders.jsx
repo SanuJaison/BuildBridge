@@ -14,10 +14,12 @@ import Pagination from "../../components/ui/Pagination";
 import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import { BUDGET_RANGES, PROVIDER_TYPES, PROVIDER_TYPE_LABELS } from "../../lib/format";
+import { PROVIDER_ROLES, roleMeta } from "../../lib/providerRoles";
 
 const FILTER_KEYS = [
   "q",
   "type",
+  "role",
   "category",
   "subcategory",
   "availability",
@@ -76,6 +78,7 @@ export default function BrowseProviders() {
     () => String(searchParams.get("type") || "").split(",").filter(Boolean),
     [searchParams]
   );
+  const selectedRole = searchParams.get("role") || "";
   const categoryValue = searchParams.get("subcategory")
     ? `${searchParams.get("category") || ""}::${searchParams.get("subcategory")}`
     : searchParams.get("category") || "";
@@ -126,6 +129,12 @@ export default function BrowseProviders() {
       label: PROVIDER_TYPE_LABELS[type] || type,
       onRemove: () => toggleType(type),
     })),
+    {
+      key: "role",
+      value: selectedRole,
+      label: roleMeta(selectedRole)?.label || selectedRole,
+      onRemove: () => update({ role: "" }),
+    },
     { key: "category", value: categoryValue, label: categoryLabel, onRemove: () => update({ category: "", subcategory: "" }) },
     {
       key: "availability",
@@ -177,6 +186,17 @@ export default function BrowseProviders() {
             </label>
           ))}
         </div>
+      </FilterGroup>
+
+      <FilterGroup title="Professional role">
+        <Select value={selectedRole} onChange={(event) => update({ role: event.target.value })} className="py-2 text-xs">
+          <option value="">All roles</option>
+          {PROVIDER_ROLES.map((role) => (
+            <option key={role.value} value={role.value}>
+              {role.label}
+            </option>
+          ))}
+        </Select>
       </FilterGroup>
 
       <FilterGroup title="Talent type">

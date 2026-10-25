@@ -1,4 +1,8 @@
 import { Route, Routes } from "react-router-dom";
+import CustomCursor from "./components/motion/CustomCursor";
+import ScrollProgress from "./components/motion/ScrollProgress";
+import MotionSystem from "./components/motion/MotionSystem";
+import CommandPalette from "./components/motion/CommandPalette";
 import PublicLayout from "./layouts/PublicLayout";
 import AuthLayout from "./layouts/AuthLayout";
 import Home from "./pages/public/Home";
@@ -50,7 +54,13 @@ import AdminSettings from "./pages/admin/AdminSettings";
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <div aria-hidden="true" className="grain-overlay" />
+      <CustomCursor />
+      <ScrollProgress />
+      <MotionSystem />
+      <CommandPalette />
+      <Routes>
       <Route element={<PublicLayout />}>
         <Route index element={<Home />} />
         <Route path="providers" element={<BrowseProviders />} />
@@ -117,5 +127,6 @@ export default function App() {
         </Route>
       </Route>
     </Routes>
+    </>
   );
 }

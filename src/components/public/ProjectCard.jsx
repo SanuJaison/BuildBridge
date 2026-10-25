@@ -12,6 +12,7 @@ export default function ProjectCard({ project, featured = false }) {
         to={`/portfolio/${project.slug}`}
         className="absolute inset-0 z-10"
         aria-label={`View project ${project.title}`}
+        data-cursor-label="View project"
       />
       <div className="relative overflow-hidden">
         <Artwork

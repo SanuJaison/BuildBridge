@@ -77,7 +77,8 @@ export default function ServiceDetail() {
     );
   }
 
-  const { provider, related = [], providerServices = [] } = state.data;
+  const { related = [], providerServices = [] } = state.data;
+  const provider = service.provider || {};
   const images = service.images?.length ? service.images : [];
   const inquiryHref = `/start-project?provider=${provider.slug}&service=${service.slug}`;
   const priceSuffix = service.pricingType === "hourly" ? " / hour" : service.pricingType === "custom" ? " · custom scope" : "";

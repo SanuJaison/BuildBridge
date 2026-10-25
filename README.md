@@ -1,10 +1,12 @@
 # BuildBridge Frontend
 
 The responsive web client for BuildBridge: a marketplace where customers discover digital service
-providers and manage inquiries, proposals, messaging, reviews, and completed engagements.
+providers, compare their work, and manage inquiries, proposals, messaging, reviews, and completed
+engagements. Providers choose from 16 professional roles and work from a dashboard shaped around
+their primary discipline.
 
 This is a real React application backed by the BuildBridge API. Seeded accounts, projects, ratings,
-and reviews are fictional demo content.
+reviews, and photography are fictional demo content.
 
 Backend repository: <https://github.com/SanuJaison/BuildBridge-Backend>
 Frontend repository: <https://github.com/SanuJaison/BuildBridge>
@@ -14,10 +16,14 @@ Frontend repository: <https://github.com/SanuJaison/BuildBridge>
 - React 19 + Vite
 - React Router
 - Tailwind CSS
-- GSAP with reduced-motion handling
+- GSAP + ScrollTrigger with reduced-motion handling
 - Axios
 - Socket.IO client
 - Lucide icons
+
+Motion includes page reveals, scroll parallax, pointer tilt and magnetism, a custom cursor, route
+transitions, and animated dashboard/page entrances. A site-wide command palette searches providers,
+services, portfolio work, categories, and the role catalog through the live API.
 
 ## Quick start
 
@@ -77,10 +83,20 @@ customer feedback.
 | `/contact` | Contact form delivered to the admin inbox |
 | `/terms`, `/privacy` | Legal pages |
 
+The navigation and homepage expose a live marketplace search palette (`Ctrl/Cmd+K` or the search
+button). Provider discovery can be filtered with `/providers?role=game-developer` and other role
+slugs.
+
 ### Authentication
 
 `/login`, `/register`, `/forgot-password`, and `/reset-password`. Registration supports customer and
 provider signup, provider type selection, organization creation, and team-join flows.
+
+Provider signup includes a 16-role picker covering software engineers, web, app and game developers,
+AI and data specialists, DevOps, security, product and brand designers, motion designers, digital
+marketers, SEO, content, e-commerce, and technical consulting. A primary role can be starred, and up
+to three roles can be selected. Customer accounts hold the buying side; provider and admin accounts
+are directed to their own workspaces instead of the brief form.
 
 ### Customer and provider workspace
 
@@ -90,9 +106,13 @@ Protected under `/dashboard`:
   account settings.
 - Customers can start conversations, accept or decline proposals, mark accepted engagements complete,
   and leave one review per completed engagement.
-- Providers can edit their public profile, publish it, manage services and portfolio projects, manage
-  organization members and invitations, and respond with proposals.
-- Messages are persisted by the backend and updated live over authenticated Socket.IO rooms.
+- Providers can edit their public profile, choose and rank their roles, publish it, manage services
+  and portfolio projects, manage organization members and invitations, and respond with proposals.
+- The provider overview adapts its headline, focus areas, role badges, and discovery links to the
+  starred primary role while retaining one shared workspace for account management.
+- Messages are persisted by the backend and updated live over authenticated Socket.IO rooms. Public
+  images are delivered from Cloudinary when configured; private inquiry attachments use
+  access-controlled API URLs.
 
 Role-specific navigation and routes prevent customers from opening provider tools and prevent
 providers from opening customer-only review pages.
@@ -108,10 +128,15 @@ Protected under `/admin` for administrators only:
 
 ## Design and accessibility
 
-- Dark navy/charcoal surfaces with a purple-blue gradient identity.
+- Dark navy/charcoal surfaces with a purple-blue gradient identity, layered artwork, grain, and
+  scroll-reactive depth.
 - Responsive layouts for mobile, tablet, and desktop.
-- GSAP entrance and reveal animations on the homepage; motion is skipped when the visitor has
-  `prefers-reduced-motion` enabled.
+- GSAP page/reveal motion, ScrollTrigger parallax, cursor states, pointer tilt, and magnetic controls
+  throughout the public experience and dashboard shell. The custom cursor is limited to fine pointers.
+- All GSAP motion is skipped when the visitor has `prefers-reduced-motion` enabled; content remains
+  visible without JavaScript animation.
+- Command-palette search is keyboard operable with arrow-key navigation, Enter to open, and Escape to
+  close.
 - Keyboard-accessible controls, labeled forms, visible focus states, and semantic page structure.
 - Image fallbacks keep cards and detail pages intact when an asset is missing.
 - In-app notices clearly identify demo marketplace data.
@@ -124,17 +149,33 @@ Protected under `/admin` for administrators only:
 - `AuthContext` restores the current account, `BrandingContext` applies administrator-managed
   branding, and `ToastContext` provides user feedback.
 - Errors from the API are surfaced as readable form and toast messages.
-- Private attachment previews use authenticated API URLs; public images use `/static` or remote URLs.
+- Search results come from the live marketplace API; the UI never invents provider or review data.
+- Private attachment previews use authenticated API URLs; public images use Cloudinary delivery URLs
+  when configured, or the seeded local `/static/demo/photos/` assets.
 
 ## Verification status
 
-- `npm run lint` and `npm run build` are expected to pass for the current codebase.
-- Backend API integration tests cover authentication, admin safety, inquiry/proposal transitions,
-  review eligibility and moderation, ownership, uploads, settings, and suspension. Run them from the
-  backend repository with `npm test`.
-- The frontend was exercised manually in a browser across public, customer, provider, and admin
-  pages, including admin moderation write flows.
-- There is no frontend unit test or browser E2E suite yet.
+Verified on 2026-10-25:
+
+- `npm run lint` passes.
+- `npm run build` passes. Vite still reports the known single-chunk size warning.
+- The backend suite passes 16 integration tests covering authentication, admin safety, customer-only
+  inquiry creation, inquiry/proposal transitions, review eligibility and moderation, ownership,
+  uploads, settings, and suspension. Run it from the backend repository with `npm test`.
+- A browser audit loaded all public routes, all 14 provider profiles, all 28 services, all 19
+  portfolio projects, all 11 categories, the customer workspace and inquiry/conversation detail, the
+  provider workspace, and all nine admin routes without an application crash.
+- Global search, role-filtered talent discovery, provider role gates, customer ownership checks, and
+  the customer/provider/admin dashboard redirects were exercised in the browser.
+- There is still no frontend unit test or automated browser E2E suite.
+
+## Demo imagery and content
+
+Seeded provider portraits, user avatars, covers, service images, and project images live in the
+backend at `public/static/demo/photos/`. The source photographs are from Unsplash and are used under
+the [Unsplash License](https://unsplash.com/license). Names, biographies, organizations, projects,
+ratings, reviews, and engagement records are fictional; photos do not depict or endorse the named
+demo accounts. Organization logos are generated monograms.
 
 ## Known limitations
 
@@ -143,6 +184,8 @@ Protected under `/admin` for administrators only:
 - No transactional email delivery; password-reset UI depends on development reset tokens outside
   production.
 - Frontend tests are not automated yet.
+- Cloudinary delivery requires three matching credentials in the backend environment. Without them,
+  auto mode falls back to local upload storage; see the backend README for setup and verification.
 - The production JavaScript bundle is currently emitted as one large chunk, which triggers Vite's
   500 kB chunk-size warning. Route-level code splitting is a future optimization.
 - The Expo mobile application has not been started. The website is the current priority; mobile will
